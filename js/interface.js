@@ -53,37 +53,16 @@ var projectionMode = [
     "orthoscopic",
 ][0];
 
-
-$("#toolbar-elements > .toolcontainer > .toolbutton").hover(
-    function() {
-        $(this).addClass("vtoolbutton-hover");
-    },
-    function() {
-        $(this).removeClass("vtoolbutton-hover");
-    }
-);
-
-$("#toolbar-pad > .toolcontainer > .toolbutton").hover(
-    function() {
-        $(this).addClass("htoolbutton-hover");
-    },
-    function() {
-        $(this).removeClass("htoolbutton-hover");
-    }
-);
-
-$("#toolbar-elements > .toolcontainer > .toolbutton").on("click", function() {
-    $("#toolbar-elements > .toolcontainer > .toolbutton").removeClass("vtoolbutton-selected");
+$(".vtoolbar > .toolbutton").not(".no-selectable").on("click", function() {
+    $(".vtoolbar > .toolbutton").removeClass("vtoolbutton-selected");
     $(this).addClass("vtoolbutton-selected");
     selectedElement = $(this).text();
-
     pad.updateCtx();
 });
 
-$("#toolbar-pad > .toolcontainer > .toolbutton").on("click", function() {
-    $("#toolbar-pad > .toolcontainer > .toolbutton").removeClass("htoolbutton-selected");
+$("#toolbar-pad > .toolbutton").not(".no-selectable").on("click", function() {
+    $("#toolbar-pad > .toolbutton").removeClass("htoolbutton-selected");
     $(this).addClass("htoolbutton-selected");
-    //selectedElement = $(this).text();
 
     pad.updateCtx();
 });
@@ -92,7 +71,7 @@ var getSelectedElement = function() {
     return selectedElement;
 }
 
-document.getElementById("updatebtn").onclick = function() {
+$("#button-check").on("click", function() {
     // TODO: generate mol file form user creation.
     // Caffeine molecule:
     area.value = "2519\n\
@@ -270,7 +249,7 @@ M  END\n\
 \n\
 $$$$\n";
     glmol.loadMolecule();
-}
+});
 
 function defineRepFromController() {
    var all = this.getAllAtoms();

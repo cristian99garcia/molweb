@@ -3,14 +3,6 @@ body {
   margin: 0px;
 }
 
-#topbar {
-  position: absolute;
-  height: 40px;
-  width: 50%;
-  top: 0px;
-  background-color: #A0A0A0;
-}
-
 #glmol01 {
   top: 40px;
   bottom: 5px;
@@ -26,7 +18,7 @@ body {
   right: 0px;
   left: 50%;
   top: 40px;
-  bottom: 20px;
+  bottom: 5px;
   position: absolute;
   background-color: white;
 }
@@ -42,36 +34,49 @@ body {
   display: none;
 }
 
-#updatebtn {
-  height: 40px;
-  width: 40px;
-  position: relative;
-}
-
 .toolbar {
   top: 0px;
+  left: 0px;
+  display: block;
   position: absolute;
+  background-color: #fff;
 }
 
 #toolbar-pad {
-  top: 0px;
   left: 50%;
-  position: absolute;
   width: 50%;
   height: 40px;
-  background-color: #fff;
+  overflow: auto;
+}
+
+.htoolbar div {
+  float: left;
 }
 
 #toolbar-elements {
-  left: 0px;
   width: 40px;
   height: 100%;
-  background-color: #fff;
 }
 
-.toolcontainer {
-  width: 100%;
-  height: 100%;
+.vtoolbar div {
+  float: top;
+}
+
+#toolbar-3d {
+  left: 0px;
+  width: 50%;
+  height: 40px;
+}
+
+.tool-right {
+  display: block;
+  float: right!important;
+}
+
+.tool-bottom {
+  /* FIXME */
+  display: block;
+  float: bottom!important;
 }
 
 .toolbutton {
@@ -80,7 +85,7 @@ body {
 
   cursor: pointer;
   /* ^^^ Hace que parezca un link, cuando el cursor se
-  posiciona sobre este div cambiará a la manito*/
+  posiciona sobre este div cambiará a la manito. */
 
   margin: 0;
   padding: 0;
@@ -88,9 +93,6 @@ body {
   line-height: 40px;
   text-align: center;
   font-size: 16pt;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 20px;
   border: 0;
 
   /* Hacer que no sea seleccionable */
@@ -101,19 +103,19 @@ body {
   user-select: none;
 }
 
-.vtoolbutton-hover {
-  background-color: #FFCC80;
-  border-right: 3px solid #FF9800;
-  width: 37px;
-}
-
 .vtoolbutton-selected {
   background-color: #80CBC4!important;
   border-right: 3px solid #009688!important;
   width: 37px;
 }
 
-.htoolbutton-hover {
+.vtoolbar > .toolbutton:hover {
+  background-color: #FFCC80;
+  border-right: 3px solid #FF9800;
+  width: 37px;
+}
+
+.htoolbar > .toolbutton:hover {
   background-color: #FFCC80;
   border-bottom: 3px solid #FF9800;
   height: 37px;
@@ -123,4 +125,18 @@ body {
   background-color: #80CBC4!important;
   border-bottom: 3px solid #009688!important;
   height: 37px;
+}
+
+.htoolbar > .separator {
+  margin: 5px;
+  width: 0px;
+  height: 30px;
+  border-right: 1px solid #ccc
+}
+
+.vtoolbar > .separator {
+  margin: 5px;
+  width: 30px;
+  height:0px;
+  border-bottom: 1px solid #ccc
 }

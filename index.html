@@ -9,38 +9,43 @@
  
  <title>MolWeb</title>
    <link rel="stylesheet" href="css/interface.css">
+   <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
 </head>
 
 <body>
-  <div id="topbar">
-    <button id="updatebtn" class="btn">Update</button>
+  <div id="toolbar-pad" class="toolbar htoolbar">
+    <div id="button-undo" class="toolbutton no-selectable" title="Deshacer"><i class="fa fa-undo"></i></div>
+    <div id="button-redo" class="toolbutton no-selectable" title="Rehacer"><i class="fa fa-repeat"></i></div>
+    <div class="separator"></div>
+    <div id="button-move" class="toolbutton" title="Mover"><i class="fa fa-arrows"></i></div>
+    <div id="button-selection-rectangle" class="toolbutton" title="Selección rectangular"><i class="fa fa-square-o"></i></div>
+    <div id="button-selection-free" class="toolbutton" title="Selección libre"><i class="fa fa-lastfm"></i></div>
+    <div id="button-check" class="toolbutton no-selectable tool-right" title="Ver en 3D"><i class="fa fa-check"></i></div>
   </div>
 
-  <div id="toolbar-pad" class="toolbar">
-    <div class="toolcontainer">
-      <div id="button-undo" class="toolbutton" title="Deshacer"></div>
-      <div id="redo" class="toolbutton" title="Rehacer"></div>
-      <br/>
-    </div>
-  </div>
-
-  <div id="glmol01"></div>
   <textarea id="glmol01_src"></textarea>
+
+  <div id="view3d">
+    <div id="toolbar-3d" class="toolbar htoolbar">
+      <div id="button-upload" class="toolbutton no-selectable" title="Cargar archivo .mol"><i class="fa fa-upload"></i></div>
+    </div>
+    <div id="glmol01"></div>
+  </div>
+
   <div id="view-wrapper">
-    <div id="toolbar-elements" class="toolbar">
-      <div class="toolcontainer">
-        <div id="button-atom-c" class="toolbutton" title="Carbono">C</div>
-        <div id="button-atom-h" class="toolbutton" title="Hidrógeno">H</div>
-        <div id="button-atom-n" class="toolbutton" title="Nitrógeno">N</div>
-        <div id="button-atom-o" class="toolbutton" title="Oxígeno">O</div>
-        <div id="button-atom-p" class="toolbutton" title="Fósforo">P</div>
-        <div id="button-atom-s" class="toolbutton" title="Azufre">S</div>
-        <div id="button-atom-f" class="toolbutton" title="Fluor">F</div>
-        <div id="button-atom-cl" class="toolbutton" title="Cloro">Cl</div>
-        <div id="button-atom-br" class="toolbutton" title="Bromo">Br</div>
-        <div id="button-atom-i" class="toolbutton" title="Iodo">I</div>
-        <div id="button-periodictable" class="toolbutton primary-tool" title="Tabla periódica">...</div>
-      </div>
+    <div id="toolbar-elements" class="toolbar vtoolbar">
+      <div id="button-atom-c" class="toolbutton" title="Carbono">C</div>
+      <div id="button-atom-h" class="toolbutton" title="Hidrógeno">H</div>
+      <div id="button-atom-n" class="toolbutton" title="Nitrógeno">N</div>
+      <div id="button-atom-o" class="toolbutton" title="Oxígeno">O</div>
+      <div id="button-atom-p" class="toolbutton" title="Fósforo">P</div>
+      <div id="button-atom-s" class="toolbutton" title="Azufre">S</div>
+      <div id="button-atom-f" class="toolbutton" title="Fluor">F</div>
+      <div id="button-atom-cl" class="toolbutton" title="Cloro">Cl</div>
+      <div id="button-atom-br" class="toolbutton" title="Bromo">Br</div>
+      <div id="button-atom-i" class="toolbutton" title="Iodo">I</div>
+      <div id="button-periodictable" class="toolbutton no-selectable" title="Tabla periódica">...</div>
+      <div class="separator"></div>
     </div>
     <canvas id="pad" width="100" height="100"></canvas>
   </div>

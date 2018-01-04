@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+ <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+ <meta charset="utf-8">
+ 
+ <title>GLmol testing</title>
+   <link rel="stylesheet" href="css/interface.css">
+</head>
+
+<body>
+  <div id="topbar">
+    <button id="updatebtn" class="btn">Update</button>
+  </div>
+
+  <div id="toolbar-pad" class="toolbar">
+    <div class="toolcontainer">
+      <div id="button-undo" class="toolbutton" title="Deshacer"></div>
+      <div id="redo" class="toolbutton" title="Rehacer"></div>
+      <br/>
+    </div>
+  </div>
+
+  <div id="glmol01"></div>
+  <textarea id="glmol01_src"></textarea>
+  <div id="view-wrapper">
+    <div id="toolbar-elements" class="toolbar">
+      <div class="toolcontainer">
+        <div id="button-atom-c" class="toolbutton" title="Carbono">C</div>
+        <div id="button-atom-h" class="toolbutton" title="Hidrógeno">H</div>
+        <div id="button-atom-n" class="toolbutton" title="Nitrógeno">N</div>
+        <div id="button-atom-o" class="toolbutton" title="Oxígeno">O</div>
+        <div id="button-atom-p" class="toolbutton" title="Fósforo">P</div>
+        <div id="button-atom-s" class="toolbutton" title="Azufre">S</div>
+        <div id="button-atom-f" class="toolbutton" title="Fluor">F</div>
+        <div id="button-atom-cl" class="toolbutton" title="Cloro">Cl</div>
+        <div id="button-atom-br" class="toolbutton" title="Bromo">Br</div>
+        <div id="button-atom-i" class="toolbutton" title="Iodo">I</div>
+        <div id="button-periodictable" class="toolbutton primary-tool" title="Tabla periódica">...</div>
+      </div>
+    </div>
+    <canvas id="pad" width="100" height="100"></canvas>
+  </div>
+
+  <script src="js/jquery-1.7.min.js"></script>
+  <script src="js/Three49custom.js"></script>
+  <script type="text/javascript" src="js/GLmol.js"></script>
+  <script type="text/javascript" src="js/pad.js"></script>
+  <script type="text/javascript" src="js/interface.js"></script>
+</body>

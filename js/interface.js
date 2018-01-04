@@ -14,7 +14,21 @@ var packing = false;
 var bgcolor = 0;
 
 
-$("#button-check").on("click", testMolecule1);
+var test = function() {
+    var demo = $("#test").val();
+
+    if (demo == "caffeine") {
+        testMoleculeCaffeine();
+    } else if (demo == "fluoranteno") {
+        testMoleculeFluoranteno();
+    } else if (demo == "hemoglobin") {
+        testMoleculeHemoglobin();
+    }
+}
+
+if (true) {
+    $("#button-check").on("click", test);
+}
 
 $(".vtoolbar > .toolbutton").not(".not-selectable").on("click", function() {
     $(".vtoolbar > .toolbutton").removeClass("vtoolbutton-selected");
@@ -46,7 +60,8 @@ function defineRepFromController() {
     if (colorMode == "ss") {
         this.colorByStructure(all, 0xcc00cc, 0x00cccc);
     } else if (colorMode == "chain") {
-        this.colorByStructureChain(all);
+        console.log(this);
+        this.colorByChain(all);
     } else if (colorMode == "chainbow") {
         this.colorChainbow(all);
     } else if (colorMode == "b") {
@@ -85,7 +100,8 @@ function defineRepFromController() {
         this.drawBondsAsLine(this.modelGroup, this.getSidechains(all), this.lineWidth);
     }
 
-    var hetatmMode1 = $("#base").val();
+    //var hetatmMode1 = $("#base").val();
+    var hetatmMode1 = $("nuclStick");
     if (showBases) {
         if (hetatmMode1 == "nuclStick") {
             this.drawNucleicAcidStick(this.modelGroup, all);
@@ -153,7 +169,6 @@ glmol.defineRepresentation = defineRepFromController;
 
 
 reloadMolecule = function() {
-    console.log("reloadMolecule");
     glmol.defineRepresentation = defineRepFromController;
     glmol.rebuildScene();
     glmol.show();

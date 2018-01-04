@@ -21,6 +21,11 @@
     <div id="button-selection-rectangle" class="toolbutton" title="Selección rectangular"><i class="fa fa-square-o"></i></div>
     <div id="button-selection-free" class="toolbutton" title="Selección libre"><i class="fa fa-lastfm"></i></div>
     <div id="button-check" class="toolbutton not-selectable tool-right" title="Ver en 3D"><i class="fa fa-check"></i></div>
+    <select id="test" class="tool-right" title="Cargar un ejemplo">
+      <option selected="selected" value="caffeine">Cafeína</option>
+      <option value="fluoranteno">Fluoranteno</option>
+      <option value="hemoglobin">Hemoglobina</option>
+    </select>
   </div>
 
   <textarea id="glmol_src"></textarea>
@@ -29,14 +34,14 @@
     <div id="toolbar-3d" class="toolbar htoolbar">
       <div id="button-upload" class="toolbutton not-selectable" title="Cargar archivo .mol"><i class="fa fa-upload"></i></div>
       <div class="separator"></div>
-      <select id="color">
+      <select id="color" title="Sistema de colores">
         <option selected="selected" value="chainbow">Espectro</option>
         <option value="chain">Cadena</option>
         <option value="ss">Estrs. secundarias</option>
         <option value="b">Factor B</option>
         <option value="polarity">Polaridad</option>
       </select>
-      <select id="main-chain-mode">
+      <select id="main-chain-mode" title="Tipo de renderizado">
         <option value="ribbon">Cinta fina</option>
         <option value="thickRibbon" selected="selected">Cinta</option>
         <option value="strand">Hebras</option>
@@ -45,11 +50,14 @@
         <option value="tube">Tubo</option>
         <option value="bonds">Enlaces</option>
       </select>
+      <!--
+        Solo sirve para el ADN
       <select id="base">
         <option value="nuclStick">Palos</option>
         <option selected="selected" value="nuclLine">Lineas</option>
         <option value="nuclPolygon">Polígonos</option>
       </select>
+      -->
       <select id="hetatm">
         <option value="stick">Palos</option>
         <option value="ballAndStick">Palos y bolas</option>

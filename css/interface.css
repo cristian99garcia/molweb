@@ -42,6 +42,14 @@ body {
   background-color: #fff;
 }
 
+.htoolbar {
+  overflow-x: auto;
+}
+
+.vtoolbar {
+  overflow-y: auto;
+}
+
 #toolbar-pad {
   left: 50%;
   width: 50%;

@@ -89,8 +89,6 @@ var Pad = function() {
                 return;
             }
 
-            console.log("updateCtx");
-
             var rect = canvas.parentNode.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
@@ -145,7 +143,7 @@ window.onload = function() {
 
     var test = true;
     if (test) {
-        testMolecule1();
+        testMoleculeCaffeine();
     }
 }
 

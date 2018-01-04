@@ -3,7 +3,7 @@ body {
   margin: 0px;
 }
 
-#glmol01 {
+#glmol {
   top: 40px;
   bottom: 5px;
   right: 50%;
@@ -30,7 +30,7 @@ body {
   left: 40px;
 }
 
-#glmol01_src {
+#glmol_src {
   display: none;
 }
 
@@ -130,7 +130,7 @@ body {
 .vtoolbar > .separator {
   margin: 5px;
   width: 30px;
-  height:0px;
+  height: 0px;
   border-bottom: 1px solid #ccc
 }
 
@@ -140,4 +140,14 @@ body {
   -moz-user-select: none;
   -o-user-select: none;
   user-select: none;
+}
+
+select {
+  cursor: pointer;
+}
+
+.htoolbar > select {
+  height: 100%;
+  background-color: #fff;
+  font-size: 18px;
 }

@@ -23,13 +23,42 @@
     <div id="button-check" class="toolbutton not-selectable tool-right" title="Ver en 3D"><i class="fa fa-check"></i></div>
   </div>
 
-  <textarea id="glmol01_src"></textarea>
+  <textarea id="glmol_src"></textarea>
 
   <div id="view3d">
     <div id="toolbar-3d" class="toolbar htoolbar">
       <div id="button-upload" class="toolbutton not-selectable" title="Cargar archivo .mol"><i class="fa fa-upload"></i></div>
+      <div class="separator"></div>
+      <select id="color">
+        <option selected="selected" value="chainbow">Espectro</option>
+        <option value="chain">Cadena</option>
+        <option value="ss">Estrs. secundarias</option>
+        <option value="b">Factor B</option>
+        <option value="polarity">Polaridad</option>
+      </select>
+      <select id="main-chain-mode">
+        <option value="ribbon">Cinta fina</option>
+        <option value="thickRibbon" selected="selected">Cinta</option>
+        <option value="strand">Hebras</option>
+        <option value="chain">Cadena</option>
+        <option value="cylinderHelix">Cilindro</option>
+        <option value="tube">Tubo</option>
+        <option value="bonds">Enlaces</option>
+      </select>
+      <select id="base">
+        <option value="nuclStick">Palos</option>
+        <option selected="selected" value="nuclLine">Lineas</option>
+        <option value="nuclPolygon">Polígonos</option>
+      </select>
+      <select id="hetatm">
+        <option value="stick">Palos</option>
+        <option value="ballAndStick">Palos y bolas</option>
+        <option selected="selected" value="ballAndStick2">Enlaces multiples</option>
+        <option value="sphere">Esferas</option>
+        <option value="line">Lineas</option>
+      </select>
     </div>
-    <div id="glmol01"></div>
+    <div id="glmol"></div>
   </div>
 
   <div id="view-wrapper">
@@ -54,5 +83,6 @@
   <script src="js/Three49custom.js"></script>
   <script type="text/javascript" src="js/GLmol.js"></script>
   <script type="text/javascript" src="js/pad.js"></script>
+  <script type="text/javascript" src="js/test.js"></script>
   <script type="text/javascript" src="js/interface.js"></script>
 </body>

@@ -8,9 +8,9 @@ var r2 = Math.pow(hover_radius, 2);
 
 
 function getMousePos(event) {
-    var rect = canvas.getBoundingClientRect(),
-        scaleX = canvas.width / rect.width,
-        scaleY = canvas.height / rect.height;
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
 
     return {
         x: (event.clientX - rect.left) * scaleX,
@@ -142,6 +142,11 @@ var resize = function() {
 window.onload = function() {
     pad.loaded = true;
     resize();
+
+    var test = true;
+    if (test) {
+        testMolecule1();
+    }
 }
 
 canvas.onclick = function(event) {

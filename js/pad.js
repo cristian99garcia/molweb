@@ -1,6 +1,11 @@
 var canvas = document.getElementById("pad");
 var ctx = canvas.getContext("2d");
 
+var hoveredAtom = null;
+var mpos = { x: 0, y: 0 };
+var hover_radius = 25;
+var r2 = Math.pow(hover_radius, 2);
+
 
 function getMousePos(event) {
     var rect = canvas.getBoundingClientRect(),
@@ -13,8 +18,6 @@ function getMousePos(event) {
     }
 }
 
-
-
 var Pad = function() {
     return {
         loaded: false,
@@ -24,6 +27,7 @@ var Pad = function() {
             this.atoms.push(atom);
 
             if (this.loaded) {
+                this.drawHoverCircle();
                 this.drawAtom(atom);
             }
         },
@@ -32,8 +36,6 @@ var Pad = function() {
             if (!this.loaded) {
                 return;
             }
-
-            //var mpos = getMousePos();
 
             ctx.font = "bold 35px Papyrus, sans-Serif";
             ctx.fillStyle = atom.color;
@@ -49,10 +51,34 @@ var Pad = function() {
             }
         },
 
+        getHoveredAtom: function() {
+            for (var i=this.atoms.length - 1; i>=0; i--) {
+                var atom = this.atoms[i];
+
+                // (x - x0)**2 + (y - y0)**2 <= r**2
+                if (Math.pow(atom.x - mpos.x, 2) + Math.pow(atom.y - mpos.y, 2) <= r2) {
+                    return atom;
+                }
+            }
+
+            return null;
+        },
+
+        drawHoverCircle: function() {
+            if (hoveredAtom !== null) {
+                ctx.fillStyle = "#0f0";
+                ctx.arc(hoveredAtom.x, hoveredAtom.y, hover_radius, 0, 2 * Math.PI);
+                ctx.fill();
+                return;
+            }
+        },
+
         updateCtx: function() {
             if (!this.loaded) {
                 return;
             }
+
+            console.log("updateCtx");
 
             var rect = canvas.parentNode.getBoundingClientRect();
             canvas.width = rect.width;
@@ -61,6 +87,7 @@ var Pad = function() {
             ctx.fillStyle = "#fff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            this.drawHoverCircle();
             this.drawAtoms();
         }
     }
@@ -119,11 +146,17 @@ canvas.onclick = function(event) {
         y: pos.y
     });
 
+    hoveredAtom = atom;
     pad.addAtom(atom);
 }
 
-$(window).on("resize", resize);
+canvas.onmousemove = function(event) {
+    mpos = getMousePos(event);
+    var atom = pad.getHoveredAtom();
+    if (atom !== hoveredAtom) {
+        hoveredAtom = atom;
+        pad.updateCtx();
+    }
+}
 
-//canvas.onmousemove = function(event) {
-//    var pos = getMousePos(event);
-//}
+$(window).on("resize", resize);

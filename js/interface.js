@@ -357,4 +357,3 @@ function defineRepFromController() {
 };
 
 glmol.defineRepresentation = defineRepFromController;
-

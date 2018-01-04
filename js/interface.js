@@ -92,7 +92,6 @@ var getSelectedElement = function() {
     return selectedElement;
 }
 
-
 document.getElementById("updatebtn").onclick = function() {
     // TODO: generate mol file form user creation.
     // Caffeine molecule:

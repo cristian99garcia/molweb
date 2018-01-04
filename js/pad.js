@@ -18,6 +18,16 @@ function getMousePos(event) {
     }
 }
 
+function setHoveredAtom(atom) {
+    hoveredAtom = atom;
+
+    if (atom !== null) {
+        $("#pad").css("cursor", "pointer");
+    } else {
+        $("#pad").css("cursor", "default");
+    }
+}
+
 var Pad = function() {
     return {
         loaded: false,
@@ -69,6 +79,7 @@ var Pad = function() {
                 ctx.fillStyle = "#0f0";
                 ctx.arc(hoveredAtom.x, hoveredAtom.y, hover_radius, 0, 2 * Math.PI);
                 ctx.fill();
+
                 return;
             }
         },
@@ -116,6 +127,7 @@ var Atom = function({name="", color="#000", x=0, y=0} = {}) {
         x: x,
         y: y,
         connections: [],
+        selected: false,
     }
 }
 
@@ -133,8 +145,15 @@ window.onload = function() {
 }
 
 canvas.onclick = function(event) {
-    if (getSelectedElement() == null) {
+    if (getSelectedElement() === null) {
         return;
+    } else if (hoveredAtom !== null) {
+        hoveredAtom.selected = true;
+        return;
+    }
+
+    for (var i=0; i<pad.atoms.length; i++) {
+        pad.atoms[i].selected = false;
     }
 
     var pos = getMousePos(event);
@@ -146,15 +165,16 @@ canvas.onclick = function(event) {
         y: pos.y
     });
 
-    hoveredAtom = atom;
+    setHoveredAtom(atom);
     pad.addAtom(atom);
 }
 
 canvas.onmousemove = function(event) {
     mpos = getMousePos(event);
     var atom = pad.getHoveredAtom();
+
     if (atom !== hoveredAtom) {
-        hoveredAtom = atom;
+        setHoveredAtom(atom);
         pad.updateCtx();
     }
 }

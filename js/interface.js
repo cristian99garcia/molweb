@@ -53,18 +53,15 @@ var projectionMode = [
     "orthoscopic",
 ][0];
 
-$(".vtoolbar > .toolbutton").not(".no-selectable").on("click", function() {
+$(".vtoolbar > .toolbutton").not(".not-selectable").on("click", function() {
     $(".vtoolbar > .toolbutton").removeClass("vtoolbutton-selected");
     $(this).addClass("vtoolbutton-selected");
     selectedElement = $(this).text();
-    pad.updateCtx();
 });
 
-$("#toolbar-pad > .toolbutton").not(".no-selectable").on("click", function() {
+$("#toolbar-pad > .toolbutton").not(".not-selectable").on("click", function() {
     $("#toolbar-pad > .toolbutton").removeClass("htoolbutton-selected");
     $(this).addClass("htoolbutton-selected");
-
-    pad.updateCtx();
 });
 
 var getSelectedElement = function() {

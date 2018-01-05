@@ -2,7 +2,9 @@ var canvas = document.getElementById("pad");
 var ctx = canvas.getContext("2d");
 
 var hoveredAtom = null;
-var mpos = { x: 0, y: 0 };
+var draggingAtom = null;
+var relativeDragPos = { x: 0, y: 0 };
+var mpos = { x: null, y: null };
 var hover_radius = 25;
 var r2 = Math.pow(hover_radius, 2);
 
@@ -147,11 +149,24 @@ window.onload = function() {
     }
 }
 
-canvas.onclick = function(event) {
-    if (getSelectedElement() === null) {
+canvas.onmousedown = function(event) {
+    if (hoveredAtom !== null) {
+        var _pos = getMousePos(event);
+        relativeDragPos = { x: _pos.x - hoveredAtom.x, y: _pos.y - hoveredAtom.y };
+        hoveredAtom.selected = true;
+        draggingAtom = hoveredAtom;
+    }
+}
+
+canvas.onmouseup = function(event) {
+    relativeDragPos = { x: null, y: null };
+
+    if (draggingAtom !== null) {
+        draggingAtom = null;
+        return;
+    } else if (getSelectedElement() === null) {
         return;
     } else if (hoveredAtom !== null) {
-        hoveredAtom.selected = true;
         return;
     }
 
@@ -174,11 +189,19 @@ canvas.onclick = function(event) {
 
 canvas.onmousemove = function(event) {
     mpos = getMousePos(event);
-    var atom = pad.getHoveredAtom();
+    if (draggingAtom !== null) {
+        console.log(relativeDragPos);
+        draggingAtom.x = mpos.x - relativeDragPos.x;
+        draggingAtom.y = mpos.y - relativeDragPos.y;
 
-    if (atom !== hoveredAtom) {
-        setHoveredAtom(atom);
         pad.updateCtx();
+    } else {
+        var atom = pad.getHoveredAtom();
+
+        if (atom !== hoveredAtom) {
+            setHoveredAtom(atom);
+            pad.updateCtx();
+        }
     }
 }
 

@@ -30,15 +30,19 @@ if (true) {
     $("#button-check").on("click", test);
 }
 
-$(".vtoolbar > .toolbutton").not(".not-selectable").on("click", function() {
-    $(".vtoolbar > .toolbutton").removeClass("vtoolbutton-selected");
-    $(this).addClass("vtoolbutton-selected");
-    selectedElement = $(this).text();
-});
+$(".toolbutton").not(".not-selectable").on("click", function() {
+    var parentId = $(this).parent().attr("id");
+    var selector = "#" + parentId + " > .toolbutton";
+    $(selector).removeClass("toolbutton-selected");
+    $(this).addClass("toolbutton-selected");
 
-$("#toolbar-pad > .toolbutton").not(".not-selectable").on("click", function() {
-    $("#toolbar-pad > .toolbutton").removeClass("htoolbutton-selected");
-    $(this).addClass("htoolbutton-selected");
+    if (parentId == "toolbar-elements") {
+        if ($(this).attr("id").includes("atom")) {
+            selectedElement = $(this).text();
+        } else {
+            selectedElement = null;
+        }
+    }
 });
 
 $("#button-upload").on("click", function() {
@@ -66,6 +70,44 @@ $("#upload-file").change(function(event) {
 
     reader.readAsDataURL(file);
 });
+
+var onBondsToolbar = false;
+var bondsTimeout = null;
+
+
+var hideBondsToolbar = function(force) {
+    if (!onBondsToolbar || force) {
+        onBondsToolbar = false;
+        $("#toolbar-bonds").css("display", "none");
+        $("#button-bonds").removeClass("thover");
+    }
+}
+
+var hideBondsToolbarTimeout = function() {
+    if (bondsTimeout !== null) {
+        clearTimeout(bondsTimeout);
+    }
+
+    bondstimeout = setTimeout(hideBondsToolbar(), 200);
+}
+
+$("#button-bonds, #toolbar-bonds").on("mouseenter", function() {
+    onBondsToolbar = true;
+    $("#toolbar-bonds").css("display", "block");
+    $("#button-bonds").addClass("thover");
+});
+
+$("#button-bonds, #toolbar-bonds").on("mouseleave", function() {
+    onBondsToolbar = false;
+    hideBondsToolbarTimeout();
+});
+
+$("#toolbar-bonds > .toolbutton").on("click", function() {
+    $("#button-bonds").text($(this).text());
+    $("#button-bonds").trigger("click");
+    hideBondsToolbar(true);
+});
+
 
 
 var getSelectedElement = function() {

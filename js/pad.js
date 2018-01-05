@@ -151,8 +151,7 @@ window.onload = function() {
 
 canvas.onmousedown = function(event) {
     if (hoveredAtom !== null) {
-        var _pos = getMousePos(event);
-        relativeDragPos = { x: _pos.x - hoveredAtom.x, y: _pos.y - hoveredAtom.y };
+        relativeDragPos = { x: mpos.x - hoveredAtom.x, y: mpos.y - hoveredAtom.y };
         hoveredAtom.selected = true;
         draggingAtom = hoveredAtom;
     }
@@ -190,7 +189,6 @@ canvas.onmouseup = function(event) {
 canvas.onmousemove = function(event) {
     mpos = getMousePos(event);
     if (draggingAtom !== null) {
-        console.log(relativeDragPos);
         draggingAtom.x = mpos.x - relativeDragPos.x;
         draggingAtom.y = mpos.y - relativeDragPos.y;
 

@@ -2,7 +2,17 @@ body {
   border: 0px;
   margin: 0px;
 }
-
+/*
+      <div id="button-atom-c" class="toolbutton not-html-selectable" title="Carbono">C</div>
+      <div id="button-atom-h" class="toolbutton not-html-selectable" title="Hidrógeno">H</div>
+      <div id="button-atom-n" class="toolbutton not-html-selectable" title="Nitrógeno">N</div>
+      <div id="button-atom-o" class="toolbutton not-html-selectable" title="Oxígeno">O</div>
+      <div id="button-atom-p" class="toolbutton not-html-selectable" title="Fósforo">P</div>
+      <div id="button-atom-s" class="toolbutton not-html-selectable" title="Azufre">S</div>
+      <div id="button-atom-f" class="toolbutton not-html-selectable" title="Fluor">F</div>
+      <div id="button-atom-cl" class="toolbutton not-html-selectable" title="Cloro">Cl</div>
+      <div id="button-atom-br" class="toolbutton not-html-selectable" title="Bromo">Br</div>
+      <div id="button-atom-i" class="toolbutton not-html-selectable" title="Iodo">I</div>*/
 #glmol {
   top: 40px;
   bottom: 5px;
@@ -35,26 +45,25 @@ body {
 }
 
 .toolbar {
-  top: 0px;
   left: 0px;
-  display: block;
+  display: block; 
   position: absolute;
   background-color: #fff;
 }
 
 .htoolbar {
   overflow-x: auto;
+  height: 40px;
 }
 
 .vtoolbar {
   overflow-y: auto;
+  width: 40px;
 }
 
 #toolbar-pad {
   left: 50%;
   width: 50%;
-  height: 40px;
-  overflow: auto;
 }
 
 .htoolbar div {
@@ -62,7 +71,7 @@ body {
 }
 
 #toolbar-elements {
-  width: 40px;
+  top: 0px;
   height: 100%;
 }
 
@@ -73,7 +82,6 @@ body {
 #toolbar-3d {
   left: 0px;
   width: 50%;
-  height: 40px;
 }
 
 .tool-right {
@@ -104,25 +112,25 @@ body {
   border: 0;
 }
 
-.vtoolbutton-selected {
-  background-color: #80CBC4!important;
-  border-right: 3px solid #009688!important;
-  width: 37px;
-}
-
-.vtoolbar > .toolbutton:hover {
+.vtoolbar > .toolbutton:hover, .vtoolbar > .thover {
   background-color: #FFCC80;
   border-right: 3px solid #FF9800;
   width: 37px;
 }
 
-.htoolbar > .toolbutton:hover {
+.htoolbar > .toolbutton:hover, .htoolbar > .thover {
   background-color: #FFCC80;
   border-bottom: 3px solid #FF9800;
   height: 37px;
 }
 
-.htoolbutton-selected {
+.vtoolbar > .toolbutton-selected {
+  background-color: #80CBC4!important;
+  border-right: 3px solid #009688!important;
+  width: 37px;
+}
+
+.htoolbar > .toolbutton-selected {
   background-color: #80CBC4!important;
   border-bottom: 3px solid #009688!important;
   height: 37px;
@@ -142,7 +150,7 @@ body {
   border-bottom: 1px solid #ccc
 }
 
-.not-html-selectable {
+.toolbar, .not-html-selectable {
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
@@ -160,12 +168,20 @@ select {
   font-size: 18px;
 }
 
-#file-wrapper {
-  position: relative;
-  overflow: hidden;
-  direction: ltr;
-}
-
 #upload-file {
   display: none;
+}
+
+.popup {
+  display: none;
+  position: relative;
+}
+
+#toolbar-bonds {
+  top: 0px;
+  left: 40px;
+  width: 120px;
+  position: absolute;
+  z-index: 1;  /* Es necesario para que se dibuje encima del canvas */
+  box-shadow: 2px 0px 10px 2px #888888;
 }

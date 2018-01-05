@@ -2,17 +2,7 @@ body {
   border: 0px;
   margin: 0px;
 }
-/*
-      <div id="button-atom-c" class="toolbutton not-html-selectable" title="Carbono">C</div>
-      <div id="button-atom-h" class="toolbutton not-html-selectable" title="Hidrógeno">H</div>
-      <div id="button-atom-n" class="toolbutton not-html-selectable" title="Nitrógeno">N</div>
-      <div id="button-atom-o" class="toolbutton not-html-selectable" title="Oxígeno">O</div>
-      <div id="button-atom-p" class="toolbutton not-html-selectable" title="Fósforo">P</div>
-      <div id="button-atom-s" class="toolbutton not-html-selectable" title="Azufre">S</div>
-      <div id="button-atom-f" class="toolbutton not-html-selectable" title="Fluor">F</div>
-      <div id="button-atom-cl" class="toolbutton not-html-selectable" title="Cloro">Cl</div>
-      <div id="button-atom-br" class="toolbutton not-html-selectable" title="Bromo">Br</div>
-      <div id="button-atom-i" class="toolbutton not-html-selectable" title="Iodo">I</div>*/
+
 #glmol {
   top: 40px;
   bottom: 5px;

@@ -41,6 +41,33 @@ $("#toolbar-pad > .toolbutton").not(".not-selectable").on("click", function() {
     $(this).addClass("htoolbutton-selected");
 });
 
+$("#button-upload").on("click", function() {
+    $("#upload-file").trigger("click");
+});
+
+$("#upload-file").change(function(event) {
+    var file = event.target.files[0];
+
+    if (file === undefined) {
+        return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = (function(_file) {
+        return function(e) {
+            var base64 = e.target.result;
+            area.value = atob(base64.split("base64,")[1]);
+
+            glmol.loadMolecule();
+            glmol.show();
+        }
+    })(file);
+
+    reader.readAsDataURL(file);
+});
+
+
 var getSelectedElement = function() {
     return selectedElement;
 }

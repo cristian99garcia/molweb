@@ -159,3 +159,13 @@ select {
   background-color: #fff;
   font-size: 18px;
 }
+
+#file-wrapper {
+  position: relative;
+  overflow: hidden;
+  direction: ltr;
+}
+
+#upload-file {
+  display: none;
+}

@@ -155,14 +155,8 @@ var Bond = function() {
         electrons: 0,
 
         its_me: function(atom1, atom2) {  // Mario!
-            var i= (this.start == atom1 && this.end == atom2) ||
+            return (this.start == atom1 && this.end == atom2) ||
                    (this.start == atom2 && this.end == atom1);
-
-            if (i) {
-                console.log(atom1, atom2);
-            }
-
-            return i;
         }
     }
 }

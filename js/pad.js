@@ -81,6 +81,8 @@ var Pad = function() {
         drawHoverCircle: function() {
             if (hoveredAtom !== null) {
                 ctx.fillStyle = "#0f0";
+
+                ctx.beginPath();
                 ctx.arc(hoveredAtom.x, hoveredAtom.y, hover_radius, 0, 2 * Math.PI);
                 ctx.fill();
 
@@ -153,8 +155,14 @@ var Bond = function() {
         electrons: 0,
 
         its_me: function(atom1, atom2) {  // Mario!
-            return (atom1.start == atom2.start && atom1.end == atom2.end) ||
-                   (atom1.start == atom2.end && atom1.end == atom2.start);
+            var i= (this.start == atom1 && this.end == atom2) ||
+                   (this.start == atom2 && this.end == atom1);
+
+            if (i) {
+                console.log(atom1, atom2);
+            }
+
+            return i;
         }
     }
 }

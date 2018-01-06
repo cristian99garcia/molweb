@@ -11,6 +11,18 @@ var hover_radius = 25;
 var r2 = Math.pow(hover_radius, 2);
 
 
+var Tool = {
+    MOVE: 0,
+    RECTANGULAR_SELECTION: 1,
+    FREE_SELECTION: 2,
+}
+
+var BondType = {
+    SIMPLE: 1,
+    DOUBLE: 2,
+    TRIPLE: 3,
+}
+
 function getMousePos(event) {
     var rect = canvas.getBoundingClientRect();
     var scaleX = canvas.width / rect.width;
@@ -36,7 +48,7 @@ var Bond = function() {
     return {
         start: null,
         end: null,
-        electrons: 0,
+        type: 0,
 
         its_me: function(atom1, atom2) {  // Mario!
             return (this.start == atom1 && this.end == atom2) ||
@@ -161,11 +173,11 @@ var Pad = function() {
                 ctx.stroke();
             }
 
-            if (bond.electrons === 1) {
+            if (bond.type === BondType.SIMPLE) {
                 simpleBond();
-            } else if (bond.electrons === 2) {
+            } else if (bond.type === BondType.DOUBLE) {
                 doubleBond();
-            } else if (bond.electrons === 3) {
+            } else if (bond.type == BondType.TRIPLE) {
                 simpleBond();
                 doubleBond(10);
             }
@@ -176,7 +188,7 @@ var Pad = function() {
                 var _bond = {
                     start: { x: bondAtom.x, y: bondAtom.y },
                     end: { x: mpos.x, y: mpos.y },
-                    electrons: getSelectedTool().length,  // FIXME
+                    type: getSelectedBond(),  // FIXME
                 }
 
                 this.drawBond(_bond);
@@ -237,16 +249,17 @@ window.onload = function() {
 }
 
 canvas.onmousedown = function(event) {
-    if (hoveredAtom === null) {
-        return;
-    }
-
-    if (getSelectedTool() === null) {
-        relativeDragPos = { x: mpos.x - hoveredAtom.x, y: mpos.y - hoveredAtom.y };
-        hoveredAtom.selected = true;
-        draggingAtom = hoveredAtom;
+    if (hoveredAtom !== null) {
+        if (getSelectedBond() === null) {
+            mpos = getMousePos(event);
+            relativeDragPos = { x: mpos.x - hoveredAtom.x, y: mpos.y - hoveredAtom.y };
+            hoveredAtom.selected = true;
+            draggingAtom = hoveredAtom;
+        } else {
+            bondAtom = hoveredAtom;
+        }
     } else {
-        bondAtom = hoveredAtom;
+        console.log(getSelectedTool());
     }
 }
 
@@ -256,13 +269,13 @@ canvas.onmouseup = function(event) {
      if (bondAtom !== null) {
         if (hoveredAtom !== null) {
             var createBond = true;
-            var electrons = getSelectedTool().length;  // FIXME
+            var type = getSelectedBond();  // FIXME
 
             for (var i=0; i < bondAtom.bonds.length; i++) {
                 var _bond = bondAtom.bonds[i];
                 if (_bond.its_me(bondAtom, hoveredAtom)) {  // Mario!
                     createBond = false;
-                    _bond.electrons = electrons;
+                    _bond.type = type;
 
                     break;
                 }
@@ -272,7 +285,7 @@ canvas.onmouseup = function(event) {
                 var bond = Bond();
                 bond.start = bondAtom;
                 bond.end = hoveredAtom;
-                bond.electrons = electrons;
+                bond.type = type;
 
                 bondAtom.bonds.push(bond);
                 hoveredAtom.bonds.push(bond);

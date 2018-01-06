@@ -2,6 +2,7 @@ var glmol = new GLmol("glmol");
 var area = document.getElementById("glmol_src");
 var selectedElement = null;
 var selectedTool = null;
+var selectedBond = null;
 
 var showMainchain = true;
 var showNonBonded = false;
@@ -35,33 +36,71 @@ if (true) {
     $("#button-check").on("click", test);
 }
 
-$(".toolbutton").not(".not-selectable").on("click", function() {
+var unselectButton = function() {
+    $(".toolbutton").removeClass("toolbutton-selected");
+}
+
+$(".toolbutton.unselectable").not("not-selectable").on("click", function() {
+    var selected = $(this).hasClass("toolbutton-selected");
+    var id = $(this).get()[0].id;
     var parentId = $(this).parent().attr("id");
-    var selector = "#" + parentId + " > .toolbutton";
 
-    if (!keepBoundButton && $(this).hasClass("toolbutton-selected", "toolbutton-selected")) {
-        selectedTool = null;
-        keepBoundButton = false;
-        $(selector).removeClass("toolbutton-selected");
-
-        return;
-    } else {
-        $(selector).removeClass("toolbutton-selected");
-        $(this).addClass("toolbutton-selected");
+    if ((id == "button-bonds" && !keepBoundButton) ||
+         id != "button-bonds") {
+        unselectButton();
     }
 
+    selectedElement = null;
+    selectedBond = null;
+
+    if (!selected) {
+        // now it's selected
+        $(this).addClass("toolbutton-selected");
+
+        if (parentId == "toolbar-pad") {
+            if ($(this).hasClass("tool")) {
+                var id = $(this).attr("id");
+                if (id.includes("move")) {
+                    selectedTool = Tool.MOVE;
+                } else if (id.includes("selection-rectangle")) {
+                    selectedTool = Tool.RECTANGULAR_SELECTION;
+                } else if (id.includes("selection-free")) {
+                    selectedTool = Tool.FREE_SELECTION;
+                }
+            }
+        } else if (parentId == "toolbar-elements") {
+            if (id == "button-bonds") {
+                // FIXME: I probably will use icons in the future, so it will no work anymore:
+                selectedBond = $(this).text().length;
+                console.log(selectedBond);
+            }
+        }
+    }
+
+
     keepBoundButton = false;
+});
+
+
+$(".toolbutton").not("not-selectable").on("click", function() {
+    var parentId = $(this).parent().attr("id");
+
+    if ($(this).hasClass("unselectable")) {
+        return;
+    }
+
+    selectedTool = null;
+
+    unselectButton();
+    $(this).addClass("toolbutton-selected");
 
     if (parentId == "toolbar-elements") {
-        if ($(this).attr("id").includes("atom")) {
+        if ($(this).hasClass("atom")) {
             selectedElement = $(this).text();
-            selectedTool = null;
-        } else {
-            selectedElement = null;
-            selectedTool = $(this).text();
         }
     }
 });
+
 
 $("#button-upload").on("click", function() {
     $("#upload-file").trigger("click");
@@ -129,6 +168,10 @@ var getSelectedElement = function() {
 
 var getSelectedTool = function() {
     return selectedTool;
+}
+
+var getSelectedBond = function() {
+    return selectedBond;
 }
 
 function defineRepFromController() {

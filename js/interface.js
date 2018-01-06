@@ -1,6 +1,7 @@
 var glmol = new GLmol("glmol");
 var area = document.getElementById("glmol_src");
 var selectedElement = null;
+var selectedTool = null;
 
 var showMainchain = true;
 var showNonBonded = false;
@@ -12,6 +13,9 @@ var cell = false;
 var biomt = false;
 var packing = false;
 var bgcolor = 0;
+
+var onBondsToolbar = false;
+var bondsTimeout = null;
 
 
 var test = function() {
@@ -33,14 +37,24 @@ if (true) {
 $(".toolbutton").not(".not-selectable").on("click", function() {
     var parentId = $(this).parent().attr("id");
     var selector = "#" + parentId + " > .toolbutton";
-    $(selector).removeClass("toolbutton-selected");
-    $(this).addClass("toolbutton-selected");
+
+    if ($(this).hasClass("toolbutton-selected", "toolbutton-selected")) {
+        selectedTool = null;
+        $(selector).removeClass("toolbutton-selected");
+
+        return;
+    } else {
+        $(selector).removeClass("toolbutton-selected");
+        $(this).addClass("toolbutton-selected");
+    }
 
     if (parentId == "toolbar-elements") {
         if ($(this).attr("id").includes("atom")) {
             selectedElement = $(this).text();
+            selectedTool = null;
         } else {
             selectedElement = null;
+            selectedTool = $(this).text();
         }
     }
 });
@@ -70,10 +84,6 @@ $("#upload-file").change(function(event) {
 
     reader.readAsDataURL(file);
 });
-
-var onBondsToolbar = false;
-var bondsTimeout = null;
-
 
 var hideBondsToolbar = function(force) {
     if (!onBondsToolbar || force) {
@@ -108,10 +118,12 @@ $("#toolbar-bonds > .toolbutton").on("click", function() {
     hideBondsToolbar(true);
 });
 
-
-
 var getSelectedElement = function() {
     return selectedElement;
+}
+
+var getSelectedTool = function() {
+    return selectedTool;
 }
 
 function defineRepFromController() {

@@ -3,6 +3,8 @@ var ctx = canvas.getContext("2d");
 
 var hoveredAtom = null;
 var draggingAtom = null;
+var bondAtom = null;
+
 var relativeDragPos = { x: 0, y: 0 };
 var mpos = { x: null, y: null };
 var hover_radius = 25;
@@ -86,6 +88,42 @@ var Pad = function() {
             }
         },
 
+        drawBond: function(pos1, pos2) {
+            ctx.strokeStyle = "#f00";
+            ctx.lineWidth = "5";
+
+            //console.log("from", pos1.x, pos1.y, "to", pos2.x, pos2.y);
+            ctx.beginPath();
+            ctx.moveTo(pos1.x, pos1.y);
+            ctx.lineTo(pos2.x, pos2.y);
+            ctx.stroke();
+        },
+
+        drawBonds: function() {
+            if (bondAtom !== null) {
+                this.drawBond(mpos, {
+                    x: bondAtom.x,
+                    y: bondAtom.y,
+                });
+            }
+
+            var bonds = [];
+            var bond = null;
+            for (var i=0; i < this.atoms.length; i++) {
+                for (var j=0; j < this.atoms[i].bonds.length; j++) {
+                    bond = this.atoms[i].bonds[j];
+                    if (bonds.indexOf(bond) === -1) {
+                        this.drawBond(
+                            { x: bond.start.x, y: bond.start.y },
+                            { x: bond.end.x, y: bond.end.y }
+                        );
+
+                        bonds.push(bond);
+                    }
+                }
+            }
+        },
+
         updateCtx: function() {
             if (!this.loaded) {
                 return;
@@ -100,6 +138,7 @@ var Pad = function() {
 
             this.drawHoverCircle();
             this.drawAtoms();
+            this.drawBonds();
         }
     }
 }
@@ -107,11 +146,16 @@ var Pad = function() {
 
 var pad = Pad();
 
-var Connection = function() {
+var Bond = function() {
     return {
         start: null,
         end: null,
         electrons: 0,
+
+        its_me: function(atom1, atom2) {  // Mario!
+            return (atom1.start == atom2.start && atom1.end == atom2.end) ||
+                   (atom1.start == atom2.end && atom1.end == atom2.start);
+        }
     }
 }
 
@@ -126,7 +170,7 @@ var Atom = function({name="", color="#000", x=0, y=0} = {}) {
         color: color,
         x: x,
         y: y,
-        connections: [],
+        bonds: [],
         selected: false,
     }
 }
@@ -150,17 +194,49 @@ window.onload = function() {
 }
 
 canvas.onmousedown = function(event) {
-    if (hoveredAtom !== null) {
+    if (hoveredAtom === null) {
+        return;
+    }
+
+    if (getSelectedTool() === null) {
         relativeDragPos = { x: mpos.x - hoveredAtom.x, y: mpos.y - hoveredAtom.y };
         hoveredAtom.selected = true;
         draggingAtom = hoveredAtom;
+    } else {
+        bondAtom = hoveredAtom;
     }
 }
 
 canvas.onmouseup = function(event) {
     relativeDragPos = { x: null, y: null };
 
-    if (draggingAtom !== null) {
+     if (bondAtom !== null) {
+        if (hoveredAtom !== null) {
+            var createBond = true;
+
+            for (var i=0; i < bondAtom.bonds.length; i++) {
+                var _bond = bondAtom.bonds[i];
+                if (_bond.its_me(bondAtom, hoveredAtom)) {  // Mario!
+                    createBond = false;
+                    break;
+                }
+            }
+
+            if (createBond) {
+                var bond = Bond();
+                bond.start = bondAtom;
+                bond.end = hoveredAtom;
+                bond.electrons = 1;
+
+                bondAtom.bonds.push(bond);
+                hoveredAtom.bonds.push(bond);
+            }
+        }
+
+        bondAtom = null;
+        pad.updateCtx();
+        return;
+    } else if (draggingAtom !== null) {
         draggingAtom = null;
         return;
     } else if (getSelectedElement() === null) {
@@ -198,6 +274,8 @@ canvas.onmousemove = function(event) {
 
         if (atom !== hoveredAtom) {
             setHoveredAtom(atom);
+            pad.updateCtx();
+        } else if (bondAtom !== null) {
             pad.updateCtx();
         }
     }

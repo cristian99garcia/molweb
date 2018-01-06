@@ -68,6 +68,8 @@ var Atom = function({name="", color="#000", x=0, y=0} = {}) {
         color: color,
         x: x,
         y: y,
+        respX: null,
+        respY: null,
         bonds: [],
         selected: false,
     }
@@ -252,21 +254,38 @@ canvas.onmousedown = function(event) {
     if (hoveredAtom !== null) {
         if (getSelectedBond() === null) {
             mpos = getMousePos(event);
+
+            // Relative to atom coords
             relativeDragPos = { x: mpos.x - hoveredAtom.x, y: mpos.y - hoveredAtom.y };
             hoveredAtom.selected = true;
             draggingAtom = hoveredAtom;
         } else {
             bondAtom = hoveredAtom;
         }
-    } else {
-        console.log(getSelectedTool());
+    } else if (getSelectedTool() != null) {
+        if (getSelectedTool() == Tool.MOVE) {
+            // Relative to (0; 0)
+            relativeDragPos = { x: mpos.x, y: mpos.y };
+
+            for (var i=0; i<pad.atoms.length; i++) {
+                pad.atoms[i].respX = pad.atoms[i].x;
+                pad.atoms[i].respY = pad.atoms[i].y;
+            }
+        }
     }
 }
 
 canvas.onmouseup = function(event) {
     relativeDragPos = { x: null, y: null };
 
-     if (bondAtom !== null) {
+    if (getSelectedTool() == Tool.MOVE) {
+        for (var i=0; i<pad.atoms.length; i++) {
+            pad.atoms[i].respX = null;
+            pad.atoms[i].respY = null;
+        }
+    }
+
+    if (bondAtom !== null) {
         if (hoveredAtom !== null) {
             var createBond = true;
             var type = getSelectedBond();  // FIXME
@@ -327,6 +346,12 @@ canvas.onmousemove = function(event) {
         draggingAtom.x = mpos.x - relativeDragPos.x;
         draggingAtom.y = mpos.y - relativeDragPos.y;
 
+        pad.updateCtx();
+    } else if (getSelectedTool() == Tool.MOVE && relativeDragPos.x !== null) {
+        for (var i=0; i<pad.atoms.length; i++) {
+            pad.atoms[i].x = (mpos.x - relativeDragPos.x) + pad.atoms[i].respX;
+            pad.atoms[i].y = (mpos.y - relativeDragPos.y) + pad.atoms[i].respY;
+        }
         pad.updateCtx();
     } else {
         var atom = pad.getHoveredAtom();

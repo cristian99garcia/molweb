@@ -52,6 +52,7 @@ $(".toolbutton.unselectable").not("not-selectable").on("click", function() {
 
     selectedElement = null;
     selectedBond = null;
+    $("#pad").css("cursor", "default");
 
     if (!selected) {
         // now it's selected
@@ -62,6 +63,8 @@ $(".toolbutton.unselectable").not("not-selectable").on("click", function() {
                 var id = $(this).attr("id");
                 if (id.includes("move")) {
                     selectedTool = Tool.MOVE;
+                    $("#pad").css("cursor", "move");
+
                 } else if (id.includes("selection-rectangle")) {
                     selectedTool = Tool.RECTANGULAR_SELECTION;
                 } else if (id.includes("selection-free")) {
@@ -72,15 +75,12 @@ $(".toolbutton.unselectable").not("not-selectable").on("click", function() {
             if (id == "button-bonds") {
                 // FIXME: I probably will use icons in the future, so it will no work anymore:
                 selectedBond = $(this).text().length;
-                console.log(selectedBond);
             }
         }
     }
 
-
     keepBoundButton = false;
 });
-
 
 $(".toolbutton").not("not-selectable").on("click", function() {
     var parentId = $(this).parent().attr("id");
@@ -100,7 +100,6 @@ $(".toolbutton").not("not-selectable").on("click", function() {
         }
     }
 });
-
 
 $("#button-upload").on("click", function() {
     $("#upload-file").trigger("click");
@@ -189,7 +188,6 @@ function defineRepFromController() {
     if (colorMode == "ss") {
         this.colorByStructure(all, 0xcc00cc, 0x00cccc);
     } else if (colorMode == "chain") {
-        console.log(this);
         this.colorByChain(all);
     } else if (colorMode == "chainbow") {
         this.colorChainbow(all);

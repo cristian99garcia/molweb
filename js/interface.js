@@ -14,6 +14,7 @@ var biomt = false;
 var packing = false;
 var bgcolor = 0;
 
+var keepBoundButton = false;
 var onBondsToolbar = false;
 var bondsTimeout = null;
 
@@ -38,8 +39,9 @@ $(".toolbutton").not(".not-selectable").on("click", function() {
     var parentId = $(this).parent().attr("id");
     var selector = "#" + parentId + " > .toolbutton";
 
-    if ($(this).hasClass("toolbutton-selected", "toolbutton-selected")) {
+    if (!keepBoundButton && $(this).hasClass("toolbutton-selected", "toolbutton-selected")) {
         selectedTool = null;
+        keepBoundButton = false;
         $(selector).removeClass("toolbutton-selected");
 
         return;
@@ -113,6 +115,7 @@ $("#button-bonds, #toolbar-bonds").on("mouseleave", function() {
 });
 
 $("#toolbar-bonds > .toolbutton").on("click", function() {
+    keepBoundButton = true;
     $("#button-bonds").text($(this).text());
     $("#button-bonds").trigger("click");
     hideBondsToolbar(true);

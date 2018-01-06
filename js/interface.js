@@ -50,6 +50,8 @@ $(".toolbutton").not(".not-selectable").on("click", function() {
         $(this).addClass("toolbutton-selected");
     }
 
+    keepBoundButton = false;
+
     if (parentId == "toolbar-elements") {
         if ($(this).attr("id").includes("atom")) {
             selectedElement = $(this).text();

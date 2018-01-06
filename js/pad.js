@@ -32,6 +32,35 @@ function setHoveredAtom(atom) {
     }
 }
 
+var Bond = function() {
+    return {
+        start: null,
+        end: null,
+        electrons: 0,
+
+        its_me: function(atom1, atom2) {  // Mario!
+            return (this.start == atom1 && this.end == atom2) ||
+                   (this.start == atom2 && this.end == atom1);
+        }
+    }
+}
+
+var Atom = function({name="", color="#000", x=0, y=0} = {}) {
+    /*var name = "";
+    var color = "#000";
+    var x = 0;
+    var y = 0;*/
+
+    return {
+        name: name,
+        color: color,
+        x: x,
+        y: y,
+        bonds: [],
+        selected: false,
+    }
+}
+
 var Pad = function() {
     return {
         loaded: false,
@@ -90,23 +119,67 @@ var Pad = function() {
             }
         },
 
-        drawBond: function(pos1, pos2) {
+        drawBond: function(bond) {
             ctx.strokeStyle = "#f00";
             ctx.lineWidth = "5";
 
-            //console.log("from", pos1.x, pos1.y, "to", pos2.x, pos2.y);
-            ctx.beginPath();
-            ctx.moveTo(pos1.x, pos1.y);
-            ctx.lineTo(pos2.x, pos2.y);
-            ctx.stroke();
+            var simpleBond = function() {
+                ctx.beginPath();
+                ctx.moveTo(bond.start.x, bond.start.y);
+                ctx.lineTo(bond.end.x, bond.end.y);
+                ctx.stroke();
+            }
+
+            var doubleBond = function(sep) {
+                if (sep === undefined) {
+                    sep = 5;
+                }
+
+                // The line that contains both atoms:
+                var line1 = Line(
+                    { x: bond.start.x, y: bond.start.y },
+                    { x: bond.end.x, y: bond.end.y }
+                );
+
+                // Perpendicular to line1 from the second atom:
+                var line2 = line1.getPerpendicularAt({x: bond.start.x, y: bond.start.y});
+
+                // Perpendicular to line1 from the second atom:
+                var line3 = line1.getPerpendicularAt({x: bond.end.x, y: bond.end.y});
+
+                var ps1 = line2.getPointsByDistance({x: bond.start.x, y: bond.start.y}, sep);
+                var ps2 = line3.getPointsByDistance({x: bond.end.x, y: bond.end.y}, sep);
+
+                ctx.beginPath();
+                ctx.moveTo(ps1[0].x, ps1[0].y);
+                ctx.lineTo(ps2[0].x, ps2[0].y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(ps1[1].x, ps1[1].y);
+                ctx.lineTo(ps2[1].x, ps2[1].y);
+                ctx.stroke();
+            }
+
+            if (bond.electrons === 1) {
+                simpleBond();
+            } else if (bond.electrons === 2) {
+                doubleBond();
+            } else if (bond.electrons === 3) {
+                simpleBond();
+                doubleBond(10);
+            }
         },
 
         drawBonds: function() {
             if (bondAtom !== null) {
-                this.drawBond(mpos, {
-                    x: bondAtom.x,
-                    y: bondAtom.y,
-                });
+                var _bond = {
+                    start: { x: bondAtom.x, y: bondAtom.y },
+                    end: { x: mpos.x, y: mpos.y },
+                    electrons: getSelectedTool().length,  // FIXME
+                }
+
+                this.drawBond(_bond);
             }
 
             var bonds = [];
@@ -115,10 +188,7 @@ var Pad = function() {
                 for (var j=0; j < this.atoms[i].bonds.length; j++) {
                     bond = this.atoms[i].bonds[j];
                     if (bonds.indexOf(bond) === -1) {
-                        this.drawBond(
-                            { x: bond.start.x, y: bond.start.y },
-                            { x: bond.end.x, y: bond.end.y }
-                        );
+                        this.drawBond(bond);
 
                         bonds.push(bond);
                     }
@@ -147,35 +217,6 @@ var Pad = function() {
 
 
 var pad = Pad();
-
-var Bond = function() {
-    return {
-        start: null,
-        end: null,
-        electrons: 0,
-
-        its_me: function(atom1, atom2) {  // Mario!
-            return (this.start == atom1 && this.end == atom2) ||
-                   (this.start == atom2 && this.end == atom1);
-        }
-    }
-}
-
-var Atom = function({name="", color="#000", x=0, y=0} = {}) {
-    /*var name = "";
-    var color = "#000";
-    var x = 0;
-    var y = 0;*/
-
-    return {
-        name: name,
-        color: color,
-        x: x,
-        y: y,
-        bonds: [],
-        selected: false,
-    }
-}
 
 var resize = function() {
     var rect = document.getElementById("view-wrapper").getBoundingClientRect();   // actual size of canvas el. itself
@@ -215,11 +256,14 @@ canvas.onmouseup = function(event) {
      if (bondAtom !== null) {
         if (hoveredAtom !== null) {
             var createBond = true;
+            var electrons = getSelectedTool().length;  // FIXME
 
             for (var i=0; i < bondAtom.bonds.length; i++) {
                 var _bond = bondAtom.bonds[i];
                 if (_bond.its_me(bondAtom, hoveredAtom)) {  // Mario!
                     createBond = false;
+                    _bond.electrons = electrons;
+
                     break;
                 }
             }
@@ -228,7 +272,7 @@ canvas.onmouseup = function(event) {
                 var bond = Bond();
                 bond.start = bondAtom;
                 bond.end = hoveredAtom;
-                bond.electrons = 1;
+                bond.electrons = electrons;
 
                 bondAtom.bonds.push(bond);
                 hoveredAtom.bonds.push(bond);

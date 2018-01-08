@@ -52,6 +52,8 @@ $(".toolbutton.unselectable").not(".not-selectable").on("click", function() {
 
     selectedElement = null;
     selectedBond = null;
+    selectedTool = null;
+
     $("#pad").css("cursor", "default");
 
     if (!selected) {
@@ -75,6 +77,7 @@ $(".toolbutton.unselectable").not(".not-selectable").on("click", function() {
             if (id == "button-bonds") {
                 // FIXME: I probably will use icons in the future, so it will no work anymore:
                 selectedBond = $(this).text().length;
+                selectedTool = null;
             }
         }
     }

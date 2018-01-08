@@ -35,12 +35,14 @@ function getMousePos(event) {
 }
 
 function setHoveredAtom(atom) {
-    hoveredAtom = atom;
+    if (getSelectedTool() == null) {
+        hoveredAtom = atom;
 
-    if (atom !== null) {
-        $("#pad").css("cursor", "pointer");
-    } else {
-        $("#pad").css("cursor", "default");
+        if (atom !== null) {
+            $("#pad").css("cursor", "pointer");
+        } else {
+            $("#pad").css("cursor", "default");
+        }
     }
 }
 
@@ -251,7 +253,17 @@ window.onload = function() {
 }
 
 canvas.onmousedown = function(event) {
-    if (hoveredAtom !== null) {
+    if (getSelectedTool() != null) {
+        if (getSelectedTool() == Tool.MOVE) {
+            // Relative to (0; 0)
+            relativeDragPos = { x: mpos.x, y: mpos.y };
+
+            for (var i=0; i<pad.atoms.length; i++) {
+                pad.atoms[i].respX = pad.atoms[i].x;
+                pad.atoms[i].respY = pad.atoms[i].y;
+            }
+        }
+    } else if (hoveredAtom !== null) {
         if (getSelectedBond() === null) {
             mpos = getMousePos(event);
 
@@ -261,16 +273,6 @@ canvas.onmousedown = function(event) {
             draggingAtom = hoveredAtom;
         } else {
             bondAtom = hoveredAtom;
-        }
-    } else if (getSelectedTool() != null) {
-        if (getSelectedTool() == Tool.MOVE) {
-            // Relative to (0; 0)
-            relativeDragPos = { x: mpos.x, y: mpos.y };
-
-            for (var i=0; i<pad.atoms.length; i++) {
-                pad.atoms[i].respX = pad.atoms[i].x;
-                pad.atoms[i].respY = pad.atoms[i].y;
-            }
         }
     }
 }

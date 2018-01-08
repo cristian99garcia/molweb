@@ -175,3 +175,11 @@ select {
   z-index: 1;  /* Es necesario para que se dibuje encima del canvas */
   box-shadow: 2px 0px 10px 2px #888888;
 }
+
+.toolbutton > img {
+  vertical-align: middle;
+}
+
+#button-check {
+  z-index: 10;  /* Es necesario para que se dibuje encima del canvas */
+}

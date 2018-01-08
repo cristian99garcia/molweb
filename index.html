@@ -9,18 +9,29 @@
  
  <title>MolWeb</title>
    <link rel="stylesheet" href="css/interface.css">
-   <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
 </head>
 
 <body>
   <div id="toolbar-pad" class="toolbar htoolbar">
-    <div id="button-undo" class="toolbutton not-selectable" title="Deshacer"><i class="fa fa-undo"></i></div>
-    <div id="button-redo" class="toolbutton not-selectable" title="Rehacer"><i class="fa fa-repeat"></i></div>
+    <div id="button-undo" class="toolbutton not-selectable" title="Deshacer">
+      <img src="icons/undo.svg"></img>
+    </div>
+    <div id="button-redo" class="toolbutton not-selectable" title="Rehacer">
+      <img src="icons/redo.svg"></img>
+    </div>
     <div class="separator"></div>
-    <div id="button-move" class="toolbutton unselectable tool" title="Mover"><i class="fa fa-arrows"></i></div>
-    <div id="button-selection-rectangle" class="toolbutton unselectable tool" title="Selección rectangular"><i class="fa fa-square-o"></i></div>
-    <div id="button-selection-free" class="toolbutton unselectable tool" title="Selección libre"><i class="fa fa-lastfm"></i></div>
-    <div id="button-check" class="toolbutton not-selectable tool-right" title="Ver en 3D"><i class="fa fa-check"></i></div>
+    <div id="button-move" class="toolbutton unselectable tool" title="Mover">
+      <img src="icons/open_with.svg"></img>
+    </div>
+    <div id="button-selection-rectangle" class="toolbutton unselectable tool" title="Selección rectangular">
+      <img src="icons/crop_16_9.svg"></img>
+    </div>
+    <div id="button-selection-free" class="toolbutton unselectable tool" title="Selección libre">
+      <img src="icons/all_inclusive.svg">
+    </div>
+    <div id="button-check" class="toolbutton not-selectable tool-right" title="Ver en 3D">
+      <img src="icons/3d_rotation.svg"></img>
+    </div>
     <select id="test" class="tool-right" title="Cargar un ejemplo">
       <option selected="selected" value="caffeine">Cafeína</option>
       <option value="fluoranteno">Fluoranteno</option>
@@ -32,7 +43,9 @@
 
   <div id="view3d">
     <div id="toolbar-3d" class="toolbar htoolbar">
-      <div id="button-upload" class="toolbutton not-selectable" title="Cargar archivo local (.mol o .pdb)"><i class="fa fa-upload"></i></div>
+      <div id="button-upload" class="toolbutton not-selectable" title="Cargar archivo local (.mol o .pdb)">
+        <img src="icons/file_upload.svg"></img>
+      </div>
 
       <input id="upload-file" type="file" multiple="">
 

@@ -116,7 +116,6 @@ var Pad = function() {
             var bond;
             while (atom.bonds.length > 0) {
                 bond = atom.bonds.splice(0, 1)[0];
-                console.log(bond);
                 this.deleteBond(bond);
             }
         },
@@ -180,7 +179,7 @@ var Pad = function() {
         },
 
         drawHoverCircle: function() {
-            if (hoveredAtom !== null) {
+            if (hoveredAtom !== null && this.atoms.indexOf(hoveredAtom) !== -1) {
                 ctx.fillStyle = "#0f0";
 
                 ctx.beginPath();

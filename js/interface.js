@@ -40,7 +40,7 @@ var unselectButton = function() {
     $(".toolbutton").removeClass("toolbutton-selected");
 }
 
-$(".toolbutton.unselectable").not("not-selectable").on("click", function() {
+$(".toolbutton.unselectable").not(".not-selectable").on("click", function() {
     var selected = $(this).hasClass("toolbutton-selected");
     var id = $(this).get()[0].id;
     var parentId = $(this).parent().attr("id");
@@ -82,7 +82,7 @@ $(".toolbutton.unselectable").not("not-selectable").on("click", function() {
     keepBoundButton = false;
 });
 
-$(".toolbutton").not("not-selectable").on("click", function() {
+$(".toolbutton").not(".not-selectable").on("click", function() {
     var parentId = $(this).parent().attr("id");
 
     if ($(this).hasClass("unselectable")) {

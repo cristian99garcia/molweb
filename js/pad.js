@@ -99,6 +99,54 @@ var Pad = function() {
             }
         },
 
+        deleteBond: function(bond) {
+            var startIdx = bond.start.bonds.indexOf(bond);
+            var endIdx = bond.end.bonds.indexOf(bond);
+
+            if (startIdx !== - 1) {
+                bond.start.bonds.splice(startIdx, 1);
+            }
+
+            if (endIdx !== -1) {
+                bond.end.bonds.splice(endIdx, 1);
+            }
+        },
+
+        deleteAllAtomBonds: function(atom) {
+            var bond;
+            while (atom.bonds.length > 0) {
+                bond = atom.bonds.splice(0, 1)[0];
+                console.log(bond);
+                this.deleteBond(bond);
+            }
+        },
+
+        deleteAtom: function(atom) {
+            if (this.atoms.indexOf(atom) === null) {
+                return;
+            }
+
+            this.atoms.splice(this.atoms.indexOf(atom), 1);
+            this.deleteAllAtomBonds(atom);
+        },
+
+        deleteSelectedAtoms: function() {
+            for (var i=0; i<this.atoms.length; i++) {
+                if (this.atoms[i].selected) {
+                    this.deleteAtom(this.atoms[i]);
+
+                    // It's necessary because if I delete an object and I keep the
+                    // foreach, it will limited at the first this.atoms.length, and
+                    // it will probably skip some atoms, so I stop this foreach
+                    // and I start a new one.
+                    this.deleteSelectedAtoms();
+                    break;
+                }
+            }
+
+            this.updateCtx();
+        },
+
         drawAtom: function(atom) {
             if (!this.loaded) {
                 return;
@@ -151,6 +199,13 @@ var Pad = function() {
         },
 
         drawBond: function(bond) {
+            /*
+            if (this.atoms.indexOf(bond.start) === -1 || this.atoms.indexOf(bond.end) === -1) {
+                // A deleted atom
+                return;
+            }
+            */
+
             ctx.strokeStyle = "#f00";
             ctx.lineWidth = "5";
 
@@ -444,3 +499,9 @@ canvas.onmousemove = function(event) {
 }
 
 $(window).on("resize", resize);
+
+$(window).on("keyup", function(event) {
+    if (event.originalEvent.key == "Delete") {
+        pad.deleteSelectedAtoms();
+    }
+});

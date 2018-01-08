@@ -5,7 +5,7 @@ var hoveredAtom = null;
 var draggingAtom = null;
 var bondAtom = null;
 
-var relativeDragPos = { x: 0, y: 0 };
+var relativeDragPos = { x: null, y: null };
 var mpos = { x: null, y: null };
 var hover_radius = 25;
 var r2 = Math.pow(hover_radius, 2);
@@ -32,6 +32,13 @@ function getMousePos(event) {
         x: (event.clientX - rect.left) * scaleX,
         y: (event.clientY - rect.top) * scaleY
     }
+}
+
+function rectIntersect(a, b) {
+    return (a.x <= b.x + b.width &&
+            b.x <= a.x + a.width &&
+            a.y <= b.y + b.height &&
+            b.y <= a.y + a.height);
 }
 
 function setHoveredAtom(atom) {
@@ -86,8 +93,9 @@ var Pad = function() {
             this.atoms.push(atom);
 
             if (this.loaded) {
-                this.drawHoverCircle();
-                this.drawAtom(atom);
+                //this.drawHoverCircle();
+                //this.drawAtom(atom);
+                this.updateCtx();
             }
         },
 
@@ -133,6 +141,13 @@ var Pad = function() {
 
                 return;
             }
+        },
+
+        drawSelectedCircle: function(atom) {
+            ctx.fillStyle = "#4c90dd";
+            ctx.beginPath();
+            ctx.arc(atom.x, atom.y, hover_radius, 0, 2 * Math.PI);
+            ctx.fill();
         },
 
         drawBond: function(bond) {
@@ -225,8 +240,30 @@ var Pad = function() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             this.drawHoverCircle();
+
+            for (var i=0; i<this.atoms.length; i++) {
+                if (this.atoms[i].selected) {
+                    this.drawSelectedCircle(this.atoms[i]);
+                }
+            }
+
             this.drawAtoms();
             this.drawBonds();
+
+            if (getSelectedTool() == Tool.RECTANGULAR_SELECTION && relativeDragPos.x !== null) {
+                ctx.fillStyle = "#4c90dd2d";
+                ctx.strokeStyle = "#4c90ddbb";
+                ctx.lineWidth = "2";
+                var w = relativeDragPos.x - mpos.x;
+                var h = relativeDragPos.y - mpos.y;
+
+                ctx.beginPath();
+                var x1 = mpos.x;
+                var y1 = mpos.y;
+                ctx.rect(mpos.x, mpos.y, w, h);
+                ctx.fill();
+                ctx.stroke();
+            }
         }
     }
 }
@@ -253,24 +290,28 @@ window.onload = function() {
 }
 
 canvas.onmousedown = function(event) {
-    if (getSelectedTool() != null) {
-        if (getSelectedTool() == Tool.MOVE) {
-            // Relative to (0; 0)
-            relativeDragPos = { x: mpos.x, y: mpos.y };
+    if (getSelectedTool() == Tool.MOVE) {
+        // Relative to (0; 0)
+        relativeDragPos = { x: mpos.x, y: mpos.y };
 
-            for (var i=0; i<pad.atoms.length; i++) {
-                pad.atoms[i].respX = pad.atoms[i].x;
-                pad.atoms[i].respY = pad.atoms[i].y;
-            }
+        for (var i=0; i<pad.atoms.length; i++) {
+            pad.atoms[i].respX = pad.atoms[i].x;
+            pad.atoms[i].respY = pad.atoms[i].y;
         }
+    } else if (getSelectedTool() == Tool.RECTANGULAR_SELECTION) {
+        relativeDragPos = { x: mpos.x, y: mpos.y };
     } else if (hoveredAtom !== null) {
         if (getSelectedBond() === null) {
             mpos = getMousePos(event);
 
             // Relative to atom coords
             relativeDragPos = { x: mpos.x - hoveredAtom.x, y: mpos.y - hoveredAtom.y };
-            hoveredAtom.selected = true;
+
+            for (var i=0; i<pad.atoms.length; i++) {
+                pad.atoms[i].selected = pad.atoms[i] == hoveredAtom;
+            }
             draggingAtom = hoveredAtom;
+            pad.updateCtx();
         } else {
             bondAtom = hoveredAtom;
         }
@@ -285,6 +326,8 @@ canvas.onmouseup = function(event) {
             pad.atoms[i].respX = null;
             pad.atoms[i].respY = null;
         }
+    } else if (getSelectedTool() == Tool.RECTANGULAR_SELECTION) {
+        pad.updateCtx();
     }
 
     if (bondAtom !== null) {
@@ -349,12 +392,45 @@ canvas.onmousemove = function(event) {
         draggingAtom.y = mpos.y - relativeDragPos.y;
 
         pad.updateCtx();
-    } else if (getSelectedTool() == Tool.MOVE && relativeDragPos.x !== null) {
-        for (var i=0; i<pad.atoms.length; i++) {
-            pad.atoms[i].x = (mpos.x - relativeDragPos.x) + pad.atoms[i].respX;
-            pad.atoms[i].y = (mpos.y - relativeDragPos.y) + pad.atoms[i].respY;
+    } else if (relativeDragPos.x !== null && getSelectedTool() !== null) {
+        if (getSelectedTool() == Tool.MOVE) {
+            for (var i=0; i<pad.atoms.length; i++) {
+                pad.atoms[i].x = (mpos.x - relativeDragPos.x) + pad.atoms[i].respX;
+                pad.atoms[i].y = (mpos.y - relativeDragPos.y) + pad.atoms[i].respY;
+            }
+            pad.updateCtx();
+        } else if (getSelectedTool() == Tool.RECTANGULAR_SELECTION) {
+            for (var i=0; i<pad.atoms.length; i++) {
+                var atom = pad.atoms[i];
+                var margin = 20;
+
+                var rect = { x: null, y: null, width: null, height: null }
+                if (mpos.x <= relativeDragPos.x) {
+                    rect.x = mpos.x;
+                    rect.width = relativeDragPos.x - mpos.x;
+                } else {
+                    rect.x = relativeDragPos.x;
+                    rect.width = mpos.x - relativeDragPos.x;
+                }
+
+                if (mpos.y <= relativeDragPos.y) {
+                    rect.y = mpos.y;
+                    rect.height = relativeDragPos.y - mpos.y;
+                } else {
+                    rect.y = relativeDragPos.y;
+                    rect.height = mpos.y - relativeDragPos.y;
+                }
+
+                atom.selected = rectIntersect(
+                    {
+                        x: atom.x - margin,
+                        y: atom.y - margin,
+                        width: margin * 2,
+                        height: margin * 2,
+                    }, rect);
+            }
+            pad.updateCtx();
         }
-        pad.updateCtx();
     } else {
         var atom = pad.getHoveredAtom();
 

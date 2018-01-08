@@ -93,6 +93,7 @@ $(".toolbutton").not(".not-selectable").on("click", function() {
     }
 
     selectedTool = null;
+    selectedBond = null;
 
     unselectButton();
     $(this).addClass("toolbutton-selected");

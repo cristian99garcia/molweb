@@ -189,23 +189,12 @@ var Pad = function() {
             this.updateCtx();
         },
 
-        drawAtom: function(atom) {
-            if (!this.loaded) {
-                return;
-            }
-
-            ctx.font = "bold 35px Papyrus, sans-Serif";
-            ctx.fillStyle = atom.color;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            ctx.fillText(atom.name, atom.x, atom.y);
-        },
-
-        drawAtoms: function() {
+        selectAll: function() {
             for (var i=0; i<this.atoms.length; i++) {
-                this.drawAtom(this.atoms[i]);
+                this.atoms[i].selected = true;
             }
+
+            this.updateCtx();
         },
 
         getHoveredAtom: function() {
@@ -230,6 +219,25 @@ var Pad = function() {
                 ctx.fill();
 
                 return;
+            }
+        },
+
+        drawAtom: function(atom) {
+            if (!this.loaded) {
+                return;
+            }
+
+            ctx.font = "bold 35px Papyrus, sans-Serif";
+            ctx.fillStyle = atom.color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            ctx.fillText(atom.name, atom.x, atom.y);
+        },
+
+        drawAtoms: function() {
+            for (var i=0; i<this.atoms.length; i++) {
+                this.drawAtom(this.atoms[i]);
             }
         },
 
@@ -424,7 +432,6 @@ canvas.onmousedown = function(event) {
     } else if (getSelectedTool() == Tool.RECTANGULAR_SELECTION) {
         relativeDragPos = { x: mpos.x, y: mpos.y };
     } else if (hoveredAtom !== null) {
-        console.log(getSelectedBond());
         if (getSelectedBond() === null) {
             hoveredAtom.respX = hoveredAtom.x;
             hoveredAtom.respY = hoveredAtom.y;
@@ -610,5 +617,7 @@ $(window).on("keyup", function(event) {
         setSelectedBond(2);
     } else if (event.originalEvent.key == "3") {
         setSelectedBond(3);
+    } else if (event.originalEvent.key == "a" && event.ctrlKey) {
+        pad.selectAll();
     }
 });

@@ -63,6 +63,7 @@ $(".atom").on("click", function() {
 
 $("#button-bonds").on("click", function() {
     if (!$("#button-bonds").hasClass("toolbutton-selected") || keepBoundButton) {
+        keepBoundButton = false;
         selectedBond = $(this).text().length;  // FIXME
         $("#button-bonds").addClass("toolbutton-selected");
     } else {

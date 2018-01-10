@@ -141,3 +141,47 @@ var Line = function(p1, p2) {
         }
     }
 }
+
+var LineFromABC = function(a, b, c) {
+    // ax + by + c = 0
+    // y = -ax/b - c/b = 0
+
+    var line = Line();
+    line.a = a;
+    line.b = b;
+    line.c = c;
+    line.m = -a/b;
+
+    return line;
+}
+
+function PointSlope(m, p) {
+    // y = mx + n
+    // y - y0 = m(x - x0)
+    // y = mx - m*x0 + y0
+
+    // y = m*x + n
+    // -m*x + y - n = 0
+    // a = -m
+    // b = 1
+    // c = -n
+    var n = p.y - m * p.x;
+    var l = LineFromABC(-m, 1, -n);
+
+    return l;
+}
+
+function get60DegreesLines(point) {
+    var line1 = LineFromABC(Infinity, 1, Infinity, -Infinity);
+    var line2 = LineFromABC(0.5, 0.87, 0);
+    line2 = PointSlope(line2.m, point);
+
+    var line3 = LineFromABC(-0.5, 0.87, 0);
+    line3 = PointSlope(line3.m, point);
+
+    return [line1, line2, line3];
+}
+
+function distance2Points(p1, p2) {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+}

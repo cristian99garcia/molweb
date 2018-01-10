@@ -20,21 +20,10 @@ var onBondsToolbar = false;
 var bondsTimeout = null;
 
 
-var test = function() {
-    var demo = $("#test").val();
-
-    if (demo == "caffeine") {
-        testMoleculeCaffeine();
-    } else if (demo == "fluoranteno") {
-        testMoleculeFluoranteno();
-    } else if (demo == "hemoglobin") {
-        testMoleculeHemoglobin();
-    }
-}
-
-if (true) {
-    $("#button-check").on("click", test);
-}
+$("#button-check").on("click", function() {
+    area.value = pad.getMOL();
+    glmol.loadMolecule();
+});
 
 var unselectButton = function() {
     $(".toolbutton").removeClass("toolbutton-selected");
@@ -69,8 +58,6 @@ $(".toolbutton.unselectable").not(".not-selectable").on("click", function() {
 
                 } else if (id.includes("selection-rectangle")) {
                     selectedTool = Tool.RECTANGULAR_SELECTION;
-                } else if (id.includes("selection-free")) {
-                    selectedTool = Tool.FREE_SELECTION;
                 }
             }
         } else if (parentId == "toolbar-elements") {
@@ -175,6 +162,18 @@ var getSelectedTool = function() {
 
 var getSelectedBond = function() {
     return selectedBond;
+}
+
+var setSelectedBond = function(bondType) {
+    selectedBond = bondType;
+
+    if (selectedBond == 1 && !$("#button-simple-bond").hasClass("toolbutton-selected")) {
+        $("#button-simple-bond").trigger("click");
+    } else if (selectedBond == 2 && !$("#button-double-bond").hasClass("toolbutton-selected")) {
+        $("#button-double-bond").trigger("click");
+    } else if (selectedBond == 3 && !$("#button-triple-bond").hasClass("toolbutton-selected")) {
+        $("#button-triple-bond").trigger("click");
+    }
 }
 
 function defineRepFromController() {
@@ -306,3 +305,15 @@ reloadMolecule = function() {
 }
 
 $("#toolbar-3d > select").on("change", reloadMolecule);
+
+$("#test").on("change", function() {
+    var demo = $(this).val();
+
+    if (demo == "caffeine") {
+        testMoleculeCaffeine();
+    } else if (demo == "fluoranteno") {
+        testMoleculeFluoranteno();
+    } else if (demo == "hemoglobin") {
+        testMoleculeHemoglobin();
+    }
+});

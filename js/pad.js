@@ -4,17 +4,19 @@ var ctx = canvas.getContext("2d");
 var hoveredAtom = null;
 var draggingAtom = null;
 var bondAtom = null;
+var tempBond = null;
 
 var relativeDragPos = { x: null, y: null };
 var mpos = { x: null, y: null };
 var hover_radius = 25;
 var r2 = Math.pow(hover_radius, 2);
 
+var bondLength = 100;
+
 
 var Tool = {
     MOVE: 0,
     RECTANGULAR_SELECTION: 1,
-    FREE_SELECTION: 2,
 }
 
 var BondType = {
@@ -62,6 +64,23 @@ var Bond = function() {
         its_me: function(atom1, atom2) {  // Mario!
             return (this.start == atom1 && this.end == atom2) ||
                    (this.start == atom2 && this.end == atom1);
+        },
+
+        getKetcher: function() {
+            return new chem.Struct.Bond({
+                type: this.type,
+                stereo: 1,
+                begin: this.start.getKetcher(),
+                end: this.end.getKetcher(),
+            });
+        },
+
+        copy: function() {
+            b = Bond();
+            b.start = this.start;
+            b.end = this.end;
+            b.type = this.type;
+            return b;
         }
     }
 }
@@ -79,8 +98,21 @@ var Atom = function({name="", color="#000", x=0, y=0} = {}) {
         y: y,
         respX: null,
         respY: null,
-        bonds: [],
         selected: false,
+        charge: 0,
+        isotope: 0,
+
+        getKetcher: function() {
+            return new chem.Struct.Atom({
+                pp: {
+                    x: this.x / bondLength,
+                    y: this.y / bondLength,
+                },
+                label: this.name,
+                charge: this.charge,
+                isotope: this.isotope
+            });
+        }
     }
 }
 
@@ -88,35 +120,44 @@ var Pad = function() {
     return {
         loaded: false,
         atoms: [],
+        bonds: [],
 
         addAtom: function(atom) {
             this.atoms.push(atom);
+            this.updateCtx();
+        },
 
-            if (this.loaded) {
-                //this.drawHoverCircle();
-                //this.drawAtom(atom);
-                this.updateCtx();
+        addBond: function(bond) {
+            for (var i=0; i<this.bonds.length; i++) {
+                if ((this.bonds[i].start == bond.start && this.bonds[i].end == bond.end) ||
+                    (this.bonds[i].end == bond.start && this.bonds[i].start == bond.end)) {
+
+                    this.bonds[i].type = bond.type;
+                    this.updateCtx();
+                    return;
+                }
             }
+
+            this.bonds.push(bond);
+            this.updateCtx();
         },
 
         deleteBond: function(bond) {
-            var startIdx = bond.start.bonds.indexOf(bond);
-            var endIdx = bond.end.bonds.indexOf(bond);
-
-            if (startIdx !== - 1) {
-                bond.start.bonds.splice(startIdx, 1);
-            }
-
-            if (endIdx !== -1) {
-                bond.end.bonds.splice(endIdx, 1);
+            var idx = this.bonds.indexOf(bond);
+            if (idx !== - 1) {
+                this.bonds.splice(idx, 1);
             }
         },
 
         deleteAllAtomBonds: function(atom) {
             var bond;
-            while (atom.bonds.length > 0) {
-                bond = atom.bonds.splice(0, 1)[0];
-                this.deleteBond(bond);
+            for (var i=0; i<this.bonds.length; i++) {
+                bond = this.bonds[i];
+                if (bond.start == atom || bond.end == atom) {
+                    this.deleteBond(bond);
+                    this.deleteAllAtomBonds(atom);
+                    break;
+                }
             }
         },
 
@@ -198,13 +239,6 @@ var Pad = function() {
         },
 
         drawBond: function(bond) {
-            /*
-            if (this.atoms.indexOf(bond.start) === -1 || this.atoms.indexOf(bond.end) === -1) {
-                // A deleted atom
-                return;
-            }
-            */
-
             ctx.strokeStyle = "#f00";
             ctx.lineWidth = "5";
 
@@ -258,26 +292,34 @@ var Pad = function() {
 
         drawBonds: function() {
             if (bondAtom !== null) {
-                var _bond = {
-                    start: { x: bondAtom.x, y: bondAtom.y },
-                    end: { x: mpos.x, y: mpos.y },
-                    type: getSelectedBond(),  // FIXME
-                }
+                var lines = get60DegreesLines(bondAtom);
+                var ps;
+                var p;
+                var d = 1000;
+                var d1, d2;
 
-                this.drawBond(_bond);
-            }
+                for (var i=0; i<lines.length; i++) {
+                    ps = lines[i].getPointsByDistance(bondAtom, bondLength);
+                    d1 = distance2Points(mpos, ps[0]);
+                    d2 = distance2Points(mpos, ps[1]);
+                    d = Math.min(d1, d2, d);
 
-            var bonds = [];
-            var bond = null;
-            for (var i=0; i < this.atoms.length; i++) {
-                for (var j=0; j < this.atoms[i].bonds.length; j++) {
-                    bond = this.atoms[i].bonds[j];
-                    if (bonds.indexOf(bond) === -1) {
-                        this.drawBond(bond);
-
-                        bonds.push(bond);
+                    if (d == d1) {
+                        p = ps[0];
+                    } else if (d == d2) {
+                        p = ps[1];
                     }
                 }
+
+                tempBond = Bond();
+                tempBond.start = bondAtom;
+                tempBond.end = Atom({name: "C", x: p.x, y: p.y});
+                tempBond.type = getSelectedBond();
+                this.drawBond(tempBond);
+            }
+
+            for (var i=0; i < this.bonds.length; i++) {
+                this.drawBond(this.bonds[i]);
             }
         },
 
@@ -318,6 +360,32 @@ var Pad = function() {
                 ctx.fill();
                 ctx.stroke();
             }
+        },
+
+        getKetcher: function() {
+            var molecule = new chem.Struct();
+
+            for (var i=0; i < this.atoms.length; i++) {
+                molecule.atoms.add(this.atoms[i].getKetcher());
+            }
+
+            for (var i=0; i < this.bonds.length; i++) {
+                molecule.bonds.add(this.bonds[i].getKetcher());
+            }
+
+            molecule.initHalfBonds();
+            //molecule.initNeighbors();
+            molecule.markFragments();
+
+            return molecule;
+        },
+
+        getSMILES: function() {
+            return new chem.SmilesSaver().saveMolecule(this.getKetcher());
+        },
+
+        getMOL: function() {
+            return new chem.MolfileSaver().saveMolecule(this.getKetcher());
         }
     }
 }
@@ -356,6 +424,8 @@ canvas.onmousedown = function(event) {
         relativeDragPos = { x: mpos.x, y: mpos.y };
     } else if (hoveredAtom !== null) {
         if (getSelectedBond() === null) {
+            hoveredAtom.respX = hoveredAtom.x;
+            hoveredAtom.respY = hoveredAtom.y;
             mpos = getMousePos(event);
 
             // Relative to atom coords
@@ -389,12 +459,10 @@ canvas.onmouseup = function(event) {
             var createBond = true;
             var type = getSelectedBond();  // FIXME
 
-            for (var i=0; i < bondAtom.bonds.length; i++) {
-                var _bond = bondAtom.bonds[i];
-                if (_bond.its_me(bondAtom, hoveredAtom)) {  // Mario!
+            for (var i=0; i < pad.bonds.length; i++) {
+                if (pad.bonds[i].its_me(bondAtom, hoveredAtom)) {
                     createBond = false;
-                    _bond.type = type;
-
+                    pad.bonds[i].type = type;
                     break;
                 }
             }
@@ -405,15 +473,47 @@ canvas.onmouseup = function(event) {
                 bond.end = hoveredAtom;
                 bond.type = type;
 
-                bondAtom.bonds.push(bond);
-                hoveredAtom.bonds.push(bond);
+                pad.addBond(bond);
             }
+        } else {
+            var _b = tempBond.copy();
+            var addEnd = true;
+
+            var margin = 5;
+            var rect1 = { x: _b.end.x - margin / 2, y: _b.end.y - margin / 2, width: margin, height: margin };
+            var rect2;
+
+            for (var i=0; i<pad.atoms.length; i++) {
+                var atom = pad.atoms[i];
+                rect2 = { x: atom.x - margin / 2, y: atom.y - margin / 2, width: margin, height: margin };
+                if (rectIntersect(rect1, rect2)) {
+                    _b.end = atom;
+                    addEnd = false;
+                }
+            }
+
+            pad.addBond(_b);
+
+            if (addEnd) {
+                pad.addAtom(_b.end);
+            }
+
+            tempBond = null;
         }
 
         bondAtom = null;
         pad.updateCtx();
         return;
     } else if (draggingAtom !== null) {
+        if (getSelectedElement() !== null) {
+            if (hoveredAtom.respX == hoveredAtom.x && hoveredAtom.respY == hoveredAtom.y) {
+                draggingAtom.name = getSelectedElement();
+                pad.updateCtx();
+            }
+        }
+
+        hoveredAtom.respX = null;
+        hoveredAtom.respY = null;
         draggingAtom = null;
         return;
     } else if (getSelectedElement() === null) {
@@ -475,13 +575,12 @@ canvas.onmousemove = function(event) {
                     rect.height = mpos.y - relativeDragPos.y;
                 }
 
-                atom.selected = rectIntersect(
-                    {
-                        x: atom.x - margin,
-                        y: atom.y - margin,
-                        width: margin * 2,
-                        height: margin * 2,
-                    }, rect);
+                atom.selected = rectIntersect({
+                    x: atom.x - margin,
+                    y: atom.y - margin,
+                    width: margin * 2,
+                    height: margin * 2,
+                }, rect);
             }
             pad.updateCtx();
         }
@@ -502,5 +601,11 @@ $(window).on("resize", resize);
 $(window).on("keyup", function(event) {
     if (event.originalEvent.key == "Delete") {
         pad.deleteSelectedAtoms();
+    } else if (event.originalEvent.key == "1") {
+        setSelectedBond(1);
+    } else if (event.originalEvent.key == "2") {
+        setSelectedBond(2);
+    } else if (event.originalEvent.key == "3") {
+        setSelectedBond(3);
     }
 });

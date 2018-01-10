@@ -26,9 +26,6 @@
     <div id="button-selection-rectangle" class="toolbutton unselectable tool" title="Selección rectangular">
       <img src="icons/crop_16_9.svg"></img>
     </div>
-    <div id="button-selection-free" class="toolbutton unselectable tool" title="Selección libre">
-      <img src="icons/all_inclusive.svg">
-    </div>
     <div id="button-check" class="toolbutton not-selectable tool-right" title="Ver en 3D">
       <img src="icons/3d_rotation.svg"></img>
     </div>
@@ -87,7 +84,7 @@
 
   <div id="view-wrapper">
     <div id="toolbar-bonds" class="toolbar htoolbar popup">
-      <div id="button-simple-bond" class="toolbutton toolbutton-selected" title="Enlace simple">/</div>
+      <div id="button-simple-bond" class="toolbutton" title="Enlace simple">/</div>
       <div id="button-double-bond" class="toolbutton" title="Enlace doble">//</div>
       <div id="button-triple-bond" class="toolbutton" title="Enlace triple">///</div>
     </div>
@@ -110,8 +107,25 @@
     <canvas id="pad" class="not-html-selectable" width="100" height="100"></canvas>
   </div>
 
-  <script src="js/jquery-1.7.min.js"></script>
-  <script src="js/Three49custom.js"></script>
+  <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
+  <script type="text/javascript" src="js/Three49custom.js"></script>
+
+  <script type="text/javascript" src="js/chem/prototype.js"></script>
+  <script type="text/javascript" src="js/chem/util/common.js"></script>
+  <script type="text/javascript" src="js/chem/util/vec2.js"></script>
+  <script type="text/javascript" src="js/chem/util/set.js"></script>
+  <script type="text/javascript" src="js/chem/util/map.js"></script>
+  <script type="text/javascript" src="js/chem/util/pool.js"></script>
+  <script type="text/javascript" src="js/chem/chem/element.js"></script>
+  <script type="text/javascript" src="js/chem/chem/struct.js"></script>
+  <script type="text/javascript" src="js/chem/chem/molfile.js"></script>
+  <script type="text/javascript" src="js/chem/chem/sgroup.js"></script>
+  <script type="text/javascript" src="js/chem/chem/struct_valence.js"></script>
+  <script type="text/javascript" src="js/chem/chem/dfs.js"></script>
+  <script type="text/javascript" src="js/chem/chem/cis_trans.js"></script>
+  <script type="text/javascript" src="js/chem/chem/stereocenters.js"></script>
+  <script type="text/javascript" src="js/chem/chem/smiles.js"></script>
+
   <script type="text/javascript" src="js/GLmol.js"></script>
   <script type="text/javascript" src="js/geometry.js"></script>
   <script type="text/javascript" src="js/interface.js"></script>

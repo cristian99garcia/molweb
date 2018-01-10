@@ -57,29 +57,31 @@ function setHoveredAtom(atom) {
 
 var Bond = function() {
     return {
-        start: null,
+        begin: null,
         end: null,
         type: 0,
+        stereo: 0,
 
         its_me: function(atom1, atom2) {  // Mario!
-            return (this.start == atom1 && this.end == atom2) ||
-                   (this.start == atom2 && this.end == atom1);
+            return (this.begin == atom1 && this.end == atom2) ||
+                   (this.begin == atom2 && this.end == atom1);
         },
 
         getKetcher: function() {
             return new chem.Struct.Bond({
                 type: this.type,
-                stereo: 1,
-                begin: this.start.getKetcher(),
+                stereo: this.stereo,
+                begin: this.begin.getKetcher(),
                 end: this.end.getKetcher(),
             });
         },
 
         copy: function() {
             b = Bond();
-            b.start = this.start;
+            b.begin = this.begin;
             b.end = this.end;
             b.type = this.type;
+            b.bonds = this.bonds;
             return b;
         }
     }
@@ -129,8 +131,8 @@ var Pad = function() {
 
         addBond: function(bond) {
             for (var i=0; i<this.bonds.length; i++) {
-                if ((this.bonds[i].start == bond.start && this.bonds[i].end == bond.end) ||
-                    (this.bonds[i].end == bond.start && this.bonds[i].start == bond.end)) {
+                if ((this.bonds[i].begin == bond.begin && this.bonds[i].end == bond.end) ||
+                    (this.bonds[i].end == bond.begin && this.bonds[i].begin == bond.end)) {
 
                     this.bonds[i].type = bond.type;
                     this.updateCtx();
@@ -153,7 +155,7 @@ var Pad = function() {
             var bond;
             for (var i=0; i<this.bonds.length; i++) {
                 bond = this.bonds[i];
-                if (bond.start == atom || bond.end == atom) {
+                if (bond.begin == atom || bond.end == atom) {
                     this.deleteBond(bond);
                     this.deleteAllAtomBonds(atom);
                     break;
@@ -244,7 +246,7 @@ var Pad = function() {
 
             var simpleBond = function() {
                 ctx.beginPath();
-                ctx.moveTo(bond.start.x, bond.start.y);
+                ctx.moveTo(bond.begin.x, bond.begin.y);
                 ctx.lineTo(bond.end.x, bond.end.y);
                 ctx.stroke();
             }
@@ -256,17 +258,17 @@ var Pad = function() {
 
                 // The line that contains both atoms:
                 var line1 = Line(
-                    { x: bond.start.x, y: bond.start.y },
+                    { x: bond.begin.x, y: bond.begin.y },
                     { x: bond.end.x, y: bond.end.y }
                 );
 
                 // Perpendicular to line1 from the second atom:
-                var line2 = line1.getPerpendicularAt({x: bond.start.x, y: bond.start.y});
+                var line2 = line1.getPerpendicularAt({x: bond.begin.x, y: bond.begin.y});
 
                 // Perpendicular to line1 from the second atom:
                 var line3 = line1.getPerpendicularAt({x: bond.end.x, y: bond.end.y});
 
-                var ps1 = line2.getPointsByDistance({x: bond.start.x, y: bond.start.y}, sep);
+                var ps1 = line2.getPointsByDistance({x: bond.begin.x, y: bond.begin.y}, sep);
                 var ps2 = line3.getPointsByDistance({x: bond.end.x, y: bond.end.y}, sep);
 
                 ctx.beginPath();
@@ -312,7 +314,7 @@ var Pad = function() {
                 }
 
                 tempBond = Bond();
-                tempBond.start = bondAtom;
+                tempBond.begin = bondAtom;
                 tempBond.end = Atom({name: "C", x: p.x, y: p.y});
                 tempBond.type = getSelectedBond();
                 this.drawBond(tempBond);
@@ -364,7 +366,6 @@ var Pad = function() {
 
         getKetcher: function() {
             var molecule = new chem.Struct();
-
             for (var i=0; i < this.atoms.length; i++) {
                 molecule.atoms.add(this.atoms[i].getKetcher());
             }
@@ -374,7 +375,7 @@ var Pad = function() {
             }
 
             molecule.initHalfBonds();
-            //molecule.initNeighbors();
+            // molecule.initNeighbors();  // FIXME
             molecule.markFragments();
 
             return molecule;
@@ -423,6 +424,7 @@ canvas.onmousedown = function(event) {
     } else if (getSelectedTool() == Tool.RECTANGULAR_SELECTION) {
         relativeDragPos = { x: mpos.x, y: mpos.y };
     } else if (hoveredAtom !== null) {
+        console.log(getSelectedBond());
         if (getSelectedBond() === null) {
             hoveredAtom.respX = hoveredAtom.x;
             hoveredAtom.respY = hoveredAtom.y;
@@ -469,7 +471,7 @@ canvas.onmouseup = function(event) {
 
             if (createBond) {
                 var bond = Bond();
-                bond.start = bondAtom;
+                bond.begin = bondAtom;
                 bond.end = hoveredAtom;
                 bond.type = type;
 
@@ -492,6 +494,7 @@ canvas.onmouseup = function(event) {
                 }
             }
 
+            _b.end.name = getSelectedElement();
             pad.addBond(_b);
 
             if (addEnd) {

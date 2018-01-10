@@ -25,73 +25,6 @@ $("#button-check").on("click", function() {
     glmol.loadMolecule();
 });
 
-var unselectButton = function() {
-    $(".toolbutton").removeClass("toolbutton-selected");
-}
-
-$(".toolbutton.unselectable").not(".not-selectable").on("click", function() {
-    var selected = $(this).hasClass("toolbutton-selected");
-    var id = $(this).get()[0].id;
-    var parentId = $(this).parent().attr("id");
-
-    if ((id == "button-bonds" && !keepBoundButton) ||
-         id != "button-bonds") {
-        unselectButton();
-    }
-
-    selectedElement = null;
-    selectedBond = null;
-    selectedTool = null;
-
-    $("#pad").css("cursor", "default");
-
-    if (!selected) {
-        // now it's selected
-        $(this).addClass("toolbutton-selected");
-
-        if (parentId == "toolbar-pad") {
-            if ($(this).hasClass("tool")) {
-                var id = $(this).attr("id");
-                if (id.includes("move")) {
-                    selectedTool = Tool.MOVE;
-                    $("#pad").css("cursor", "move");
-
-                } else if (id.includes("selection-rectangle")) {
-                    selectedTool = Tool.RECTANGULAR_SELECTION;
-                }
-            }
-        } else if (parentId == "toolbar-elements") {
-            if (id == "button-bonds") {
-                // FIXME: I probably will use icons in the future, so it will no work anymore:
-                selectedBond = $(this).text().length;
-                selectedTool = null;
-            }
-        }
-    }
-
-    keepBoundButton = false;
-});
-
-$(".toolbutton").not(".not-selectable").on("click", function() {
-    var parentId = $(this).parent().attr("id");
-
-    if ($(this).hasClass("unselectable")) {
-        return;
-    }
-
-    selectedTool = null;
-    selectedBond = null;
-
-    unselectButton();
-    $(this).addClass("toolbutton-selected");
-
-    if (parentId == "toolbar-elements") {
-        if ($(this).hasClass("atom")) {
-            selectedElement = $(this).text();
-        }
-    }
-});
-
 $("#button-upload").on("click", function() {
     $("#upload-file").trigger("click");
 });
@@ -116,6 +49,48 @@ $("#upload-file").change(function(event) {
     })(file);
 
     reader.readAsDataURL(file);
+});
+
+$(".atom").on("click", function() {
+    $(".atom.toolbutton-selected").removeClass("toolbutton-selected");
+    $(this).addClass("toolbutton-selected");
+
+    $(".tool.toolbutton-selected").removeClass("toolbutton-selected");
+    selectedTool = null;
+
+    selectedElement = $(this).text();
+});
+
+$("#button-bonds").on("click", function() {
+    if (!$("#button-bonds").hasClass("toolbutton-selected") || keepBoundButton) {
+        selectedBond = $(this).text().length;  // FIXME
+        $("#button-bonds").addClass("toolbutton-selected");
+    } else {
+        selectedBond = null;
+        $("#button-bonds").removeClass("toolbutton-selected");
+    }
+
+    $(".tool.toolbutton-selected").removeClass("toolbutton-selected");
+    selectedTool = null;
+});
+
+$(".tool").on("click", function() {
+    if (!$(this).hasClass("toolbutton-selected")) {
+        if (this.id == "button-move") {
+            selectedTool = Tool.MOVE;
+        } else if (this.id == "button-selection-rectangle") {
+            selectedTool = Tool.RECTANGULAR_SELECTION;
+        }
+
+        $(".toolbutton-selected").removeClass("toolbutton-selected");
+        selectedElement = null;
+        selectedBond = null;
+
+        $(this).addClass("toolbutton-selected");
+    } else {
+        selectedTool = null;
+        $(this).removeClass("toolbutton-selected");
+    }
 });
 
 var hideBondsToolbar = function(force) {

@@ -65,12 +65,14 @@ var c = function(n) {
     }
 }
 
-var Bond = function({begin=null, end=null, type=0, stereo=0} = {}) {
+var Bond = function({begin=null, end=null, type=0, stereo=0, from=0, to=0,} = {}) {
     return {
         begin: begin,
         end: end,
         type: type,
         stereo: stereo,
+        from: from,
+        to: to,
 
         its_me: function(atom1, atom2) {  // Mario!
             return (this.begin == atom1 && this.end == atom2) ||
@@ -96,7 +98,7 @@ var Bond = function({begin=null, end=null, type=0, stereo=0} = {}) {
     }
 }
 
-var Atom = function({name="", color="#000", x=0, y=0, charge=0} = {}) {
+var Atom = function({name="", color="#000", x=0, y=0, charge=0, index=0} = {}) {
     /*var name = "";
     var color = "#000";
     var x = 0;
@@ -112,6 +114,7 @@ var Atom = function({name="", color="#000", x=0, y=0, charge=0} = {}) {
         selected: false,
         charge: charge,
         isotope: 0,
+        index: index,
 
         getKetcher: function() {
             return new chem.Struct.Atom({
@@ -386,11 +389,28 @@ var Pad = function() {
         getKetcher: function() {
             var molecule = new chem.Struct();
 
+            /*
             for (var i=0; i < this.atoms.length; i++) {
                 molecule.atoms.add(this.atoms[i].getKetcher());
             }
 
             for (var i=0; i < this.bonds.length; i++) {
+                molecule.bonds.add(this.bonds[i].getKetcher());
+            }
+            */
+
+            var a = [];
+            for (var i=0; i < this.bonds.length; i++) {
+                if (a.indexOf(this.bonds[i].begin) == -1) {
+                    a.push(this.bonds[i].begin);
+                    molecule.atoms.add(this.bonds[i].begin.getKetcher());
+                }
+
+                if (a.indexOf(this.bonds[i].end) == -1) {
+                    a.push(this.bonds[i].end);
+                    molecule.atoms.add(this.bonds[i].end.getKetcher());
+                }
+
                 molecule.bonds.add(this.bonds[i].getKetcher());
             }
 
@@ -455,6 +475,7 @@ var Pad = function() {
                     name: atomData.label,
                     charge: atomData.charge,
                     isotope: atomData.isotope,
+                    index: _this.atoms.length,
                 });
 
                 _this.atoms.push(atom);
@@ -466,6 +487,8 @@ var Pad = function() {
                     stereo: bondData.stereo,
                     begin: _this.atoms[bondData.begin],
                     end: _this.atoms[bondData.end],
+                    from: _this.atoms[bondData.begin].index,
+                    to: _this.atoms[bondData.end].index,
                 });
 
                 _this.bonds.push(bond);
@@ -558,6 +581,8 @@ canvas.onmouseup = function(event) {
                     begin: bondAtom,
                     end: hoveredAtom,
                     type: type,
+                    from: bondAtom.index,
+                    end: hoveredAtom.index,
                 });
 
                 pad.addBond(bond);

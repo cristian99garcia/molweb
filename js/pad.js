@@ -463,9 +463,20 @@ var Pad = function() {
         },
 
         loadMOL: function(mol) {
+            if (mol == undefined || mol == null) {
+                mol = area.value;
+            }
+
             this.clear();
 
-            var molecule = chem.Molfile.parseCTFile(mol.split("\n"));
+            var molecule;
+            try {
+                molecule = chem.Molfile.parseCTFile(mol.split("\n"));
+            } catch(Uncaught) {
+                this.updateCtx();
+                // Error loading a mol file, it's a multiple-chains molecule
+                return;
+            }
 
             _this = this;
             molecule.atoms.each(function(i, atomData) {

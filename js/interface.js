@@ -45,6 +45,8 @@ $("#upload-file").change(function(event) {
 
             glmol.loadMolecule();
             glmol.show();
+
+            pad.loadMOL();
         }
     })(file);
 

@@ -582,7 +582,7 @@ canvas.onmouseup = function(event) {
                     end: hoveredAtom,
                     type: type,
                     from: bondAtom.index,
-                    end: hoveredAtom.index,
+                    to: hoveredAtom.index,
                 });
 
                 pad.addBond(bond);

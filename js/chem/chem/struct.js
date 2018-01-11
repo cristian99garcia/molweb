@@ -619,6 +619,7 @@ chem.Struct.prototype.initNeighbors = function ()
 	{
 		atom.neighbors = [];
 	});
+
 	this.bonds.each(function (bid, bond)
 	{
 		var a1 = this.atoms.get(bond.begin);

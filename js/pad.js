@@ -428,7 +428,7 @@ var Pad = function() {
             calculator = Kekule.Calculator.generate3D(mol, {"forceField": ""},
             function(generatedMol) {
                 area.value = generatedMol.__$srcInfo.data;
-                glmol.loadMolecule();
+                glmol.loadMolecule(true);
             },
 
             function(err) {

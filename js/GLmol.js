@@ -1702,11 +1702,15 @@ GLmol.prototype.initializeScene = function() {
    this.setupLights(this.scene);
 };
 
-GLmol.prototype.zoomInto = function(atomlist, keepSlab) {
-   var tmp = this.getExtent(atomlist);
-   var center = new TV3(tmp[2][0], tmp[2][1], tmp[2][2]);//(tmp[0][0] + tmp[1][0]) / 2, (tmp[0][1] + tmp[1][1]) / 2, (tmp[0][2] + tmp[1][2]) / 2);
+GLmol.prototype.center = function(extent) {
+   var center = new TV3(extent[2][0], extent[2][1], extent[2][2]);
    if (this.protein.appliedMatrix) {center = this.protein.appliedMatrix.multiplyVector3(center);}
    this.modelGroup.position = center.multiplyScalar(-1);
+}
+
+GLmol.prototype.zoomInto = function(atomlist, keepSlab) {
+   var tmp = this.getExtent(atomlist);
+   this.center(tmp);
    var x = tmp[1][0] - tmp[0][0], y = tmp[1][1] - tmp[0][1], z = tmp[1][2] - tmp[0][2];
 
    var maxD = Math.sqrt(x * x + y * y + z * z);
@@ -1744,7 +1748,6 @@ GLmol.prototype.loadMoleculeStr = function(repressZoom, source) {
 
    this.parsePDB2(source);
    if (!this.parseSDF(source) && !this.parseSDF3000(source) && !this.parseMOL2(source)) this.parseXYZ(source);
-   //console.log("parsed in " + (+new Date() - time) + "ms");
 
    var title = $('#' + this.id + '_pdbTitle');
    var titleStr = '';
@@ -1753,7 +1756,11 @@ GLmol.prototype.loadMoleculeStr = function(repressZoom, source) {
    title.html(titleStr);
 
    this.rebuildScene(true);
-   if (repressZoom == undefined || !repressZoom) this.zoomInto(this.getAllAtoms());
+   if (repressZoom == undefined || !repressZoom) {
+     this.zoomInto(this.getAllAtoms());
+  } else {
+     this.center(this.getExtent(this.getAllAtoms()));
+  }
 
    this.show();
  };

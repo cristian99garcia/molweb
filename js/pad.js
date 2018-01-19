@@ -55,37 +55,15 @@ function setHoveredAtom(atom) {
     }
 }
 
-var c = function(n) {
-    if (n == 0 || n == 1) {
-        return chem.Struct.BOND.SINGLE;
-    } else if (n == 2) {
-        return chem.Struct.BOND.DOUBLE;
-    } else if (n == 3) {
-        return chem.Struct.BOND.TRIPLE;
-    }
-}
-
-var Bond = function({begin=null, end=null, type=0, stereo=0, from=0, to=0,} = {}) {
+var Bond = function({begin=null, end=null, type=0} = {}) {
     return {
         begin: begin,
         end: end,
         type: type,
-        stereo: stereo,
-        from: from,
-        to: to,
 
         its_me: function(atom1, atom2) {  // Mario!
             return (this.begin == atom1 && this.end == atom2) ||
                    (this.begin == atom2 && this.end == atom1);
-        },
-
-        getKetcher: function() {
-            return new chem.Struct.Bond({
-                type: this.type,
-                stereo: this.stereo,
-                begin: this.begin.getKetcher(),
-                end: this.end.getKetcher(),
-            });
         },
 
         copy: function() {
@@ -98,12 +76,7 @@ var Bond = function({begin=null, end=null, type=0, stereo=0, from=0, to=0,} = {}
     }
 }
 
-var Atom = function({name="", color="#000", x=0, y=0, charge=0, index=0} = {}) {
-    /*var name = "";
-    var color = "#000";
-    var x = 0;
-    var y = 0;*/
-
+var Atom = function({name="", color="#000", x=0, y=0, charge=0} = {}) {
     return {
         name: name,
         color: color,
@@ -113,21 +86,6 @@ var Atom = function({name="", color="#000", x=0, y=0, charge=0, index=0} = {}) {
         respY: null,
         selected: false,
         charge: charge,
-        isotope: 0,
-        index: index,
-
-        getKetcher: function() {
-            return new chem.Struct.Atom({
-                pp: {
-                    x: this.x / bondLength,
-                    y: this.y / bondLength,
-                },
-                label: this.name,
-                charge: this.charge,
-                isotope: this.isotope,
-                charge: this.charge,
-            });
-        }
     }
 }
 
@@ -339,6 +297,7 @@ var Pad = function() {
                     end: Atom({name: "C", x: p.x, y: p.y}),
                     type: getSelectedBond(),
                 });
+
                 this.drawBond(tempBond);
             }
 
@@ -386,41 +345,6 @@ var Pad = function() {
             }
         },
 
-        getKetcher: function() {
-            var molecule = new chem.Struct();
-
-            /*
-            for (var i=0; i < this.atoms.length; i++) {
-                molecule.atoms.add(this.atoms[i].getKetcher());
-            }
-
-            for (var i=0; i < this.bonds.length; i++) {
-                molecule.bonds.add(this.bonds[i].getKetcher());
-            }
-            */
-
-            var a = [];
-            for (var i=0; i < this.bonds.length; i++) {
-                if (a.indexOf(this.bonds[i].begin) == -1) {
-                    a.push(this.bonds[i].begin);
-                    molecule.atoms.add(this.bonds[i].begin.getKetcher());
-                }
-
-                if (a.indexOf(this.bonds[i].end) == -1) {
-                    a.push(this.bonds[i].end);
-                    molecule.atoms.add(this.bonds[i].end.getKetcher());
-                }
-
-                molecule.bonds.add(this.bonds[i].getKetcher());
-            }
-
-            molecule.initHalfBonds();
-            molecule.initNeighbors();  // FIXME
-            molecule.markFragments();
-
-            return molecule;
-        },
-
         clear: function() {
             this.atoms = [];
             this.bonds = [];
@@ -443,69 +367,87 @@ var Pad = function() {
                 }
             }
 
-            var a = (maxX - Math.abs(minX)) / 2;
-            var b = (maxY - Math.abs(minY)) / 2;
+            var a = (maxX - minX);
+            var b = (maxY - minY);
 
             for (var i=0; i<this.atoms.length; i++) {
-                this.atoms[i].x += canvas.width / 2 - a;
-                this.atoms[i].y += canvas.height / 2 - b;
+                this.atoms[i].x += (canvas.width - a) / 2 - minX;
+                this.atoms[i].y += (canvas.height - b) / 2 - minY;
             }
 
             this.updateCtx();
         },
 
-        getSMILES: function() {
-            return new chem.SmilesSaver().saveMolecule(this.getKetcher());
+        makeKMolecule() {
+            var mol = new Kekule.Molecule();
+            var atoms = [];
+            var katoms = [];
+
+            var factor = 1.5;
+
+            for (var i=0; i<this.bonds.length; i++) {
+                // FIXME: Only works when there is a bond
+
+                var bond = this.bonds[i];
+                var atom1, atom2;
+                if (atoms.indexOf(bond.begin) === -1) {
+                    atom1 = mol.appendAtom(bond.begin.name);
+                    atom1.set2DX(canvas.width / 2 - bond.begin.x / bondLength * factor);
+                    atom1.set2DY(canvas.height / 2 - bond.begin.y / bondLength * factor);
+                    atoms.push(bond.begin);
+                    katoms.push(atom1)
+                } else {
+                    atom1 = katoms[atoms.indexOf(bond.begin)];
+                }
+
+                if (atoms.indexOf(bond.end) === -1) {
+                    atom2 = mol.appendAtom(bond.end.name);
+                    atom2.set2DX(canvas.width / 2 - bond.end.x / bondLength * factor);
+                    atom2.set2DY(canvas.height / 2 - bond.end.y / bondLength * factor);
+                    atoms.push(bond.end);
+                    katoms.push(atom2);
+                } else {
+                    atom2 = katoms[atoms.indexOf(bond.end)];
+                }
+
+                mol.appendBond([atom1, atom2], bond.type);
+            }
+
+            mol.setName("Unnamed");
+            return mol;
         },
 
-        getMOL: function() {
-            return new chem.MolfileSaver().saveMolecule(this.getKetcher());
+        getSMILES: function() {
+            var kmol = this.makeKMolecule();
+            return Kekule.IO.saveFormatData(kmol, "smi");
+        },
+
+        generateMOL: function() {
+            var mol = this.makeKMolecule();
+
+            calculator = Kekule.Calculator.generate3D(mol, {"forceField": ""},
+            function(generatedMol) {
+                area.value = generatedMol.__$srcInfo.data;
+                glmol.loadMolecule();
+            },
+
+            function(err) {
+                if (err) {
+                    //Kekule.error(err);
+                    console.log(err);
+                }
+            },
+
+            function(msgData) {
+                if (msgData.type === "print" || msgData.type === "printErr") {
+                    msgs.push("[" + (new Date()).toLocaleTimeString() + "][" + msgData.type + "]" + msgData.data);
+                    return msgs.join('\n');
+                }
+            });
         },
 
         loadMOL: function(mol) {
-            if (mol == undefined || mol == null) {
-                mol = area.value;
-            }
-
-            this.clear();
-
-            var molecule;
-            try {
-                molecule = chem.Molfile.parseCTFile(mol.split("\n"));
-            } catch(Uncaught) {
-                this.updateCtx();
-                // Error loading a mol file, it's a multiple-chains molecule
-                return;
-            }
-
-            _this = this;
-            molecule.atoms.each(function(i, atomData) {
-                var atom = new Atom({
-                    x: atomData.pp.x * bondLength / 2,
-                    y: atomData.pp.y * bondLength / 2,
-                    name: atomData.label,
-                    charge: atomData.charge,
-                    isotope: atomData.isotope,
-                    index: _this.atoms.length,
-                });
-
-                _this.atoms.push(atom);
-            });
-
-            molecule.bonds.each(function(i, bondData) {
-                var bond = new Bond({
-                    type: bondData.type,
-                    stereo: bondData.stereo,
-                    begin: _this.atoms[bondData.begin],
-                    end: _this.atoms[bondData.end],
-                    from: _this.atoms[bondData.begin].index,
-                    to: _this.atoms[bondData.end].index,
-                });
-
-                _this.bonds.push(bond);
-            });
-
-            this.center();
+            // TODO
         }
     }
 }
@@ -592,8 +534,6 @@ canvas.onmouseup = function(event) {
                     begin: bondAtom,
                     end: hoveredAtom,
                     type: type,
-                    from: bondAtom.index,
-                    to: hoveredAtom.index,
                 });
 
                 pad.addBond(bond);

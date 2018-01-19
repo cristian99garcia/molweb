@@ -21,8 +21,9 @@ var bondsTimeout = null;
 
 
 $("#button-check").on("click", function() {
-    area.value = pad.getMOL();
-    glmol.loadMolecule();
+    //area.value = pad.getMOL();
+    //glmol.loadMolecule();
+    pad.generateMOL();
 });
 
 $("#button-upload").on("click", function() {

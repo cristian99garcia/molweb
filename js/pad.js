@@ -383,7 +383,7 @@ var Pad = function() {
             var atoms = [];
             var katoms = [];
 
-            var factor = 1.5;
+            // var factor = 1.5;
 
             for (var i=0; i<this.bonds.length; i++) {
                 // FIXME: Only works when there is a bond
@@ -392,8 +392,8 @@ var Pad = function() {
                 var atom1, atom2;
                 if (atoms.indexOf(bond.begin) === -1) {
                     atom1 = mol.appendAtom(bond.begin.name);
-                    atom1.set2DX(canvas.width / 2 - bond.begin.x / bondLength * factor);
-                    atom1.set2DY(canvas.height / 2 - bond.begin.y / bondLength * factor);
+                    // atom1.set2DX(canvas.width / 2 - bond.begin.x / bondLength * factor);
+                    // atom1.set2DY(canvas.height / 2 - bond.begin.y / bondLength * factor);
                     atoms.push(bond.begin);
                     katoms.push(atom1)
                 } else {
@@ -402,8 +402,8 @@ var Pad = function() {
 
                 if (atoms.indexOf(bond.end) === -1) {
                     atom2 = mol.appendAtom(bond.end.name);
-                    atom2.set2DX(canvas.width / 2 - bond.end.x / bondLength * factor);
-                    atom2.set2DY(canvas.height / 2 - bond.end.y / bondLength * factor);
+                    // atom2.set2DX(canvas.width / 2 - bond.end.x / bondLength * factor);
+                    // atom2.set2DY(canvas.height / 2 - bond.end.y / bondLength * factor);
                     atoms.push(bond.end);
                     katoms.push(atom2);
                 } else {
@@ -669,8 +669,8 @@ $(window).on("resize", resize);
 
 var elementKeys = {
     "a": "Al",
-    "b": "B",
-    "c": "Cl",
+    "b": "Br",
+    "c": "C",
     // "d": "Db",
     // "e": null,
     "f": "F",
@@ -679,11 +679,11 @@ var elementKeys = {
     "i": "I",
     // "j": null,
     "k": "K",
-    "l": "La",
+    "l": "Cl",
     "m": "Mg",
     "n": "N",
     "o": "O",
-    // "p": "P",
+    "p": "P",
     "r": "Rb",
     "s": "S",
     "t": "Ti",
@@ -709,7 +709,12 @@ $(window).on("keyup", function(event) {
     } else if (event.key === "Enter") {
         pad.generateMOL();
     } else if (elementKeys[event.key] !== undefined) {
-        selectedElement = elementKeys[event.key];
-        console.log(selectedElement);
+        var objects = $("#toolbar-elements > div:contains(" + elementKeys[event.key] + ")");
+        objects.each(function (index) {
+            if ($(this).text !== undefined && $(this).text() === elementKeys[event.key]) {
+                $(this).trigger("click");
+                return false;
+            }
+        });
     }
 });

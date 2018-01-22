@@ -667,16 +667,49 @@ canvas.onmousemove = function(event) {
 
 $(window).on("resize", resize);
 
+var elementKeys = {
+    "a": "Al",
+    "b": "B",
+    "c": "Cl",
+    // "d": "Db",
+    // "e": null,
+    "f": "F",
+    "g": "Ga",
+    "h": "H",
+    "i": "I",
+    // "j": null,
+    "k": "K",
+    "l": "La",
+    "m": "Mg",
+    "n": "N",
+    "o": "O",
+    // "p": "P",
+    "r": "Rb",
+    "s": "S",
+    "t": "Ti",
+    "u": "U",
+    "v": "V",
+    "w": "W",
+    // "x": null
+    "y": "Y",
+    "z": "Zn",
+}
+
 $(window).on("keyup", function(event) {
-    if (event.originalEvent.key == "Delete") {
+    if (event.key === "Delete") {
         pad.deleteSelectedAtoms();
-    } else if (event.originalEvent.key == "1") {
+    } else if (event.key === "1") {
         setSelectedBond(1);
-    } else if (event.originalEvent.key == "2") {
+    } else if (event.key === "2") {
         setSelectedBond(2);
-    } else if (event.originalEvent.key == "3") {
+    } else if (event.key === "3") {
         setSelectedBond(3);
-    } else if (event.originalEvent.key == "a" && event.ctrlKey) {
+    } else if (event.key === "a" && event.ctrlKey) {
         pad.selectAll();
+    } else if (event.key === "Enter") {
+        pad.generateMOL();
+    } else if (elementKeys[event.key] !== undefined) {
+        selectedElement = elementKeys[event.key];
+        console.log(selectedElement);
     }
 });

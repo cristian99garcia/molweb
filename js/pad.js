@@ -5,11 +5,12 @@ var hoveredAtom = null;
 var draggingAtom = null;
 var bondAtom = null;
 var tempBond = null;
+var shift = false;
 
 var relativeDragPos = { x: null, y: null };
 var mpos = { x: null, y: null };
-var hover_radius = 25;
-var r2 = Math.pow(hover_radius, 2);
+var hoverRadius = 25;
+var r2 = Math.pow(hoverRadius, 2);
 
 var bondLength = 100;
 
@@ -55,6 +56,29 @@ function setHoveredAtom(atom) {
     }
 }
 
+function getElementColor(name) {
+    var colors = {
+        "h": "#4C4C4C",
+        "c": "#000000",
+        "o": "#CC0000",
+        "n": "#0000CC",
+        "s": "#CCCC00",
+        "p": "#6622CC",
+        "f": "#00CC00",
+        "cl": "#00CC00",
+        "br": "#882200",
+        "i": "#6600AA",
+        "fe": "#CC6600",
+        "ca": "#8888AA"
+    };
+
+    if (name == null) {
+        return colors["c"];
+    }
+
+    return colors[name.toLowerCase()] || colors["c"];
+}
+
 var Bond = function({begin=null, end=null, type=0} = {}) {
     return {
         begin: begin,
@@ -77,6 +101,10 @@ var Bond = function({begin=null, end=null, type=0} = {}) {
 }
 
 var Atom = function({name="", color="#000", x=0, y=0, charge=0} = {}) {
+    if (name !== "C" && (color === "#000" || color === "#000000")) {
+        color = getElementColor(name);
+    }
+
     return {
         name: name,
         color: color,
@@ -95,24 +123,34 @@ var Pad = function() {
         atoms: [],
         bonds: [],
 
-        addAtom: function(atom) {
+        addAtom: function(atom, update) {
             this.atoms.push(atom);
-            this.updateCtx();
+
+            if (update === undefined || update) {
+                this.updateCtx();
+            }
         },
 
-        addBond: function(bond) {
+        addBond: function(bond, update) {
             for (var i=0; i<this.bonds.length; i++) {
                 if ((this.bonds[i].begin == bond.begin && this.bonds[i].end == bond.end) ||
                     (this.bonds[i].end == bond.begin && this.bonds[i].begin == bond.end)) {
 
                     this.bonds[i].type = bond.type;
-                    this.updateCtx();
+
+                    if (update === undefined || update) {
+                        this.updateCtx();
+                    }
+
                     return;
                 }
             }
 
             this.bonds.push(bond);
-            this.updateCtx();
+
+            if (update === undefined || update) {
+                this.updateCtx();
+            }
         },
 
         deleteBond: function(bond) {
@@ -186,7 +224,7 @@ var Pad = function() {
                 ctx.fillStyle = "#0f0";
 
                 ctx.beginPath();
-                ctx.arc(hoveredAtom.x, hoveredAtom.y, hover_radius, 0, 2 * Math.PI);
+                ctx.arc(hoveredAtom.x, hoveredAtom.y, hoverRadius, 0, 2 * Math.PI);
                 ctx.fill();
 
                 return;
@@ -215,18 +253,31 @@ var Pad = function() {
         drawSelectedCircle: function(atom) {
             ctx.fillStyle = "#4c90dd";
             ctx.beginPath();
-            ctx.arc(atom.x, atom.y, hover_radius, 0, 2 * Math.PI);
+            ctx.arc(atom.x, atom.y, hoverRadius, 0, 2 * Math.PI);
             ctx.fill();
         },
 
         drawBond: function(bond) {
-            ctx.strokeStyle = "#f00";
+            var _p1 = {x: bond.begin.x, y: bond.begin.y}
+            var _p2 = {x: bond.end.x, y: bond.end.y};
+
+            var line = Line(_p1, _p2);
+            var p1 = line.getOnePointByDistance(_p1, _p2, hoverRadius + 5);
+            var p2 = line.getOnePointByDistance(_p2, _p1, hoverRadius + 5);
+
+            var gradient = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+
+            gradient.addColorStop(0.40, bond.begin.color);
+            gradient.addColorStop(0.60, bond.end.color);
+
+            ctx.strokeStyle = gradient;
             ctx.lineWidth = "5";
+            ctx.lineCap = "round";
 
             var simpleBond = function() {
                 ctx.beginPath();
-                ctx.moveTo(bond.begin.x, bond.begin.y);
-                ctx.lineTo(bond.end.x, bond.end.y);
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
                 ctx.stroke();
             }
 
@@ -242,22 +293,31 @@ var Pad = function() {
                 );
 
                 // Perpendicular to line1 from the second atom:
-                var line2 = line1.getPerpendicularAt({x: bond.begin.x, y: bond.begin.y});
+                var line2 = line1.getPerpendicularAt(_p1);
 
                 // Perpendicular to line1 from the second atom:
-                var line3 = line1.getPerpendicularAt({x: bond.end.x, y: bond.end.y});
+                var line3 = line1.getPerpendicularAt(_p2);
 
-                var ps1 = line2.getPointsByDistance({x: bond.begin.x, y: bond.begin.y}, sep);
-                var ps2 = line3.getPointsByDistance({x: bond.end.x, y: bond.end.y}, sep);
+                var ps1 = line2.getPointsByDistance(_p1, sep);
+                var ps2 = line3.getPointsByDistance(_p2, sep);
+
+                var line4 = Line(ps1[0], ps2[0]);
+                var line5 = Line(ps1[1], ps2[1]);
+
+                var s = line4.getOnePointByDistance(ps1[0], ps2[0], hoverRadius + 5);
+                var e = line4.getOnePointByDistance(ps2[0], ps1[0], hoverRadius + 5);
 
                 ctx.beginPath();
-                ctx.moveTo(ps1[0].x, ps1[0].y);
-                ctx.lineTo(ps2[0].x, ps2[0].y);
+                ctx.moveTo(s.x, s.y);
+                ctx.lineTo(e.x, e.y);
                 ctx.stroke();
 
+                s = line5.getOnePointByDistance(ps1[1], ps2[1], hoverRadius + 5);
+                e = line5.getOnePointByDistance(ps2[1], ps1[1], hoverRadius + 5);
+
                 ctx.beginPath();
-                ctx.moveTo(ps1[1].x, ps1[1].y);
-                ctx.lineTo(ps2[1].x, ps2[1].y);
+                ctx.moveTo(s.x, s.y);
+                ctx.lineTo(e.x, e.y);
                 ctx.stroke();
             }
 
@@ -273,28 +333,28 @@ var Pad = function() {
 
         drawBonds: function() {
             if (bondAtom !== null) {
-                var lines = get60DegreesLines(bondAtom);
-                var ps;
                 var p;
-                var d = 1000;
-                var d1, d2;
 
-                for (var i=0; i<lines.length; i++) {
-                    ps = lines[i].getPointsByDistance(bondAtom, bondLength);
-                    d1 = distance2Points(mpos, ps[0]);
-                    d2 = distance2Points(mpos, ps[1]);
-                    d = Math.min(d1, d2, d);
+                if (shift) {
+                    var points = getHelpPoints(bondAtom);
+                    var dist = 1000;
+                    var _dist;
 
-                    if (d == d1) {
-                        p = ps[0];
-                    } else if (d == d2) {
-                        p = ps[1];
+                    for (var i=0; i<points.length; i++) {
+                        _dist = distance2Points(mpos, points[i]);
+                        dist = Math.min(_dist, dist);
+
+                        if (_dist == dist) {
+                            p = points[i];
+                        }
                     }
+                } else {
+                    p = mpos;
                 }
 
                 tempBond = Bond({
                     begin: bondAtom,
-                    end: Atom({name: "C", x: p.x, y: p.y}),
+                    end: Atom({name: getSelectedElement(), x: p.x, y: p.y}),
                     type: getSelectedBond(),
                 });
 
@@ -561,6 +621,7 @@ canvas.onmouseup = function(event) {
                 _b.end.name = "C";
             }
 
+            _b.end.color = getElementColor(_b.end.name);
             pad.addBond(_b);
 
             if (addEnd) {
@@ -577,6 +638,7 @@ canvas.onmouseup = function(event) {
         if (getSelectedElement() !== null) {
             if (hoveredAtom.respX == hoveredAtom.x && hoveredAtom.respY == hoveredAtom.y) {
                 draggingAtom.name = getSelectedElement();
+                draggingAtom.color = getElementColor(draggingAtom.name);
                 pad.updateCtx();
             }
         }
@@ -716,5 +778,16 @@ $(window).on("keyup", function(event) {
                 return false;
             }
         });
+    } else if (event.key === "Shift") {
+        shift = false;
+    }
+});
+
+$(window).on("keydown", function(event) {
+    if (event.key === "Shift") {
+        shift = true;
+        if (bondAtom === null) {
+            pad.updateCtx();
+        }
     }
 });

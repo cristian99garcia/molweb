@@ -76,7 +76,7 @@ var Line = function(p1, p2) {
             return {x: x, y: y};
         },
 
-        getPointsByDistance(p, r) {
+        getPointsByDistance(p, r, feewf) {
             // Line and Circumference intersection
             //
             // Circumference of center (x0, y0) and radium r:
@@ -110,7 +110,7 @@ var Line = function(p1, p2) {
             var m = -this.a / this.b;
             var n = -this.c / this.b;
 
-            if (m == Infinity || m == -Infinity || n == Infinity || n == -Infinity) {
+            if (m == Infinity || m == -Infinity || n == Infinity || n == -Infinity || isNaN(m) || isNaN(n)) {
                 return [
                     { x: p.x, y: p.y - r },
                     { x: p.x, y: p.y + r },
@@ -136,8 +136,54 @@ var Line = function(p1, p2) {
                 y = m*x + n;
                 p2 = { x: x, y: y };
 
+                if (feewf !== undefined) {
+                    console.log(p1, p2);
+                }
+
                 return [p1, p2];
             }
+        },
+
+        getOnePointByDistance(p1, p2, r, feewf) {
+            if (p1.x === p2.x) {
+                if (p1.y > p2.y) {
+                    p1.y -= r;
+                    return p1;
+                } else if (p2.y > p1.y) {
+                    p1.y += r;
+                    return p1;
+                }
+
+                return p1;
+            }
+
+            var _p1, _p2;
+            var ps = this.getPointsByDistance(p1, r, feewf);
+
+            _p1 = ps[0];
+            _p2 = ps[1];
+
+            if (p1.x > p2.x) {
+                if (_p1.x > _p2.x) {
+                    return _p2;
+                } else {
+                    return _p1;
+                }
+            } else if (p1.x < p2.x) {
+                if (_p2 > p1.x) {
+                    return _p1;
+                } else {
+                    return _p2;
+                }
+            } else if (p1.x === p2.x) {
+                if (p1.y > p2.y) {
+                    return _p1;
+                } else {
+                    return _p2;
+                }
+            }
+
+            return p1;
         }
     }
 }
@@ -180,6 +226,21 @@ function get60DegreesLines(point) {
     line3 = PointSlope(line3.m, point);
 
     return [line1, line2, line3];
+}
+
+function getHelpPoints(point) {
+    var points = [];
+    var p1, p2, ps;
+
+    var _60D = get60DegreesLines(point);
+
+    for (var i=0; i<_60D.length; i++) {
+        ps = _60D[i].getPointsByDistance(point, bondLength);
+        points.push(ps[0]);
+        points.push(ps[1]);
+    }
+
+    return points;
 }
 
 function distance2Points(p1, p2) {
